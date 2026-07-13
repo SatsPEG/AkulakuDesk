@@ -12,3 +12,4 @@ package-lock.json
 # Editor
 .vscode/
 .DS_Store
+.env*
