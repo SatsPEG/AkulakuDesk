@@ -48,55 +48,86 @@ function showToast(text, type='default', title=null){
 }
 
 /* =================== DASHBOARD =================== */
-function renderSalesChart(){
+async function loadDashboard(){
+  try {
+    // Fetch product listing from BigSeller (via env cookie)
+    const [prodResp, countResp, shopResp] = await Promise.all([
+      fetch('/api/bigseller/proxy'),
+      fetch('/api/bigseller/proxy?path=/api/v1/product/listing/akulaku/count.json?orderBy=create_time&desc=true&searchType=productName&inquireType=0&akulakuStatus=1&bsStatus=4&pageNo=1&pageSize=50'),
+      fetch('/api/bigseller/proxy?path=/api/v1/shop/authShop/list.json?platform=akulaku'),
+    ]);
+    const prod = await prodResp.json();
+    const cnt = await countResp.json();
+    const shop = await shopResp.json();
+
+    // Stat cards
+    const counts = cnt?.data || {};
+    document.getElementById('statChat').textContent = '—';
+    document.getElementById('statProduk').textContent = (counts.onsale || '—').toString();
+    document.getElementById('statSales').textContent = (counts.allOnlineNum || '—').toString();
+    document.getElementById('statSettlement').textContent = counts.soldout !== undefined ? `Habis: ${counts.soldout}` : '—';
+
+    // Top products (ambil dari listing, sort by price desc as proxy for "terlaris")
+    const items = prod?.data?.page?.rows || [];
+    const top = items.slice(0, 5);
+    const list = document.getElementById('dashTopProd');
+    list.innerHTML = top.map((p,i) => `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-soft)">
+        <div style="width:22px;text-align:center;font-weight:800;color:${i===0?'#FF3D57':'var(--text-muted)'};font-size:13px">${i+1}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name || '—'}</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Rp ${(p.price||0).toLocaleString('id-ID')} · ${p.stock||0} stok</div>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;color:var(--success)">${p.sold||0}</div>
+      </div>
+    `).join('') || '<div style="padding:20px;text-align:center;color:var(--text-muted)">Belum ada produk</div>';
+
+    // Sales chart with real product prices
+    renderSalesChart(items.slice(0,14));
+
+  } catch(e){
+    console.error('Dashboard load error', e);
+    // fallback: keep mock values visible
+  }
+}
+
+function renderSalesChart(items){
   const svg = document.getElementById('salesChart');
   const W=700, H=240, P=30;
-  const days = 14;
-  const sales = [2.1,2.4,1.8,3.2,2.8,3.5,4.1,3.8,4.5,3.9,4.2,5.1,4.8,4.8];
-  const chats = [8,12,10,15,14,18,22,19,24,20,23,28,25,27];
-  const maxS = 6, maxC = 30;
-  let path1='', path2='', area='';
-  sales.forEach((v,i)=>{
-    const x = P + (i*(W-P*2))/(days-1);
-    const y = H-P - (v/maxS)*(H-P*2);
-    path1 += (i===0?'M':'L')+x+','+y+' ';
+  const count = Math.min(items.length || 14, 14);
+  const vals = items.length ? items.map(p => Math.max((p.price||0)/10000, 1)) : [2.1,2.4,1.8,3.2,2.8,3.5,4.1,3.8,4.5,3.9,4.2,5.1,4.8,4.8];
+  const maxVal = Math.max(...vals, 6);
+  let path='', area='';
+  vals.slice(0,14).forEach((v,i)=>{
+    const x = P + (i*(W-P*2))/(13);
+    const y = H-P - (v/maxVal)*(H-P*2);
+    path += (i===0?'M':'L')+x+','+y+' ';
     if(i===0) area = 'M'+x+','+(H-P);
     area += ' L'+x+','+y;
-    if(i===sales.length-1) area += ' L'+x+','+(H-P)+' Z';
-  });
-  chats.forEach((v,i)=>{
-    const x = P + (i*(W-P*2))/(days-1);
-    const y = H-P - (v/maxC)*(H-P*2);
-    path2 += (i===0?'M':'L')+x+','+y+' ';
+    if(i===vals.length-1 || i===13) area += ' L'+x+','+(H-P)+' Z';
   });
   let grid='';
   for(let i=0;i<=4;i++){
     const y = P + i*(H-P*2)/4;
     grid += `<line x1="${P}" y1="${y}" x2="${W-P}" y2="${y}" stroke="#F0F1F4" stroke-width="1"/>`;
-    const lbl = (6 - i*1.5).toFixed(1);
-    grid += `<text x="${P-8}" y="${y+4}" text-anchor="end" font-size="10" fill="#8B92A5">${lbl}</text>`;
+    grid += `<text x="${P-8}" y="${y+4}" text-anchor="end" font-size="10" fill="#8B92A5">${(maxVal - i*(maxVal/4)).toFixed(1)}</text>`;
   }
   let xLabels='';
-  for(let i=0;i<days;i+=2){
-    const x = P + (i*(W-P*2))/(days-1);
+  for(let i=0;i<14;i+=2){
+    const x = P + (i*(W-P*2))/13;
     xLabels += `<text x="${x}" y="${H-P+18}" text-anchor="middle" font-size="10" fill="#8B92A5">${14-i}h</text>`;
   }
   svg.innerHTML = `
     ${grid}
-    <defs>
-      <linearGradient id="grad1" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#FF3D57" stop-opacity="0.25"/>
-        <stop offset="100%" stop-color="#FF3D57" stop-opacity="0"/>
-      </linearGradient>
-    </defs>
-    <path d="${area}" fill="url(#grad1)"/>
-    <path d="${path1}" fill="none" stroke="#FF3D57" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="${path2}" fill="none" stroke="#FFA940" stroke-width="2" stroke-dasharray="4,4" stroke-linecap="round"/>
+    <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FF3D57" stop-opacity="0.25"/><stop offset="100%" stop-color="#FF3D57" stop-opacity="0"/></linearGradient></defs>
+    <path d="${area}" fill="url(#g)"/>
+    <path d="${path}" fill="none" stroke="#FF3D57" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
     ${xLabels}
   `;
 }
 
 function renderDashChat(){
+  // Chat dari BigSeller belum tersedia — fallback mock
   const list = document.getElementById('dashChatList');
   list.innerHTML = CONVERSATIONS.slice(0,4).map(c=>`
     <div style="display:flex;gap:11px;padding:10px 12px;border-radius:9px;cursor:pointer;transition:.15s" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='transparent'" onclick="navTo('chat')">
@@ -114,19 +145,7 @@ function renderDashChat(){
 }
 
 function renderDashTopProd(){
-  const list = document.getElementById('dashTopProd');
-  const top = [...PRODUCTS].sort((a,b)=>b.sold-a.sold).slice(0,5);
-  list.innerHTML = top.map((p,i)=>`
-    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-soft)">
-      <div style="width:22px;text-align:center;font-weight:800;color:${i===0?'#FF3D57':'var(--text-muted)'};font-size:13px">${i+1}</div>
-      <img src="${PRODUCT_IMG[p.id-1]}" style="width:38px;height:38px;border-radius:8px;object-fit:cover">
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${p.sold} terjual · ${p.views.reduce((a,b)=>a+b,0)} views</div>
-      </div>
-      <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;color:var(--success)">+${(p.sold*0.1).toFixed(0)}</div>
-    </div>
-  `).join('');
+  // Replaced by loadDashboard() — no-op
 }
 
 /* =================== CHAT =================== */
@@ -476,9 +495,7 @@ function showTypingFor(convId){
 
 /* =================== INIT =================== */
 window.addEventListener('DOMContentLoaded',()=>{
-  renderSalesChart();
   renderDashChat();
-  renderDashTopProd();
   renderConvList();
   renderMessages();
   updateChatBadge();
@@ -487,6 +504,8 @@ window.addEventListener('DOMContentLoaded',()=>{
   renderTrenTop();
   renderTags();
   renderOrders();
+  // Load BigSeller data async
+  loadDashboard();
 
   // Demo hint: klik di luar panel detail menutupnya
   document.getElementById('prodDetail').addEventListener('click',(e)=>{
