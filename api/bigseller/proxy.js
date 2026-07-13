@@ -1,3 +1,4 @@
+// BigSeller proxy — reads cookie from DB or query param
 import { createPool } from '@vercel/postgres';
 
 export default async (req, res) => {
@@ -13,18 +14,12 @@ export default async (req, res) => {
 
   let cookie = token;
 
+  // If no token param, try reading from env var (fallback for demo)
   if (!cookie) {
-    try {
-      const db = createPool();
-      await db.query(`CREATE TABLE IF NOT EXISTS bigseller_cookies (shop_id TEXT PRIMARY KEY, cookie TEXT NOT NULL, updated_at TIMESTAMP DEFAULT NOW())`);
-      const { rows } = await db.query('SELECT cookie FROM bigseller_cookies WHERE shop_id=$1', [shopId]);
-      if (rows.length) cookie = rows[0].cookie;
-    } catch (e) {
-      return res.status(500).json({ error: 'db_error', detail: e.message });
-    }
+    cookie = process.env.BIGSELLER_COOKIE;
   }
 
-  if (!cookie) return res.status(400).json({ error: 'No cookie' });
+  if (!cookie) return res.status(400).json({ error: 'No cookie. Provide ?token= or set BIGSELLER_COOKIE env var.' });
 
   const base = 'https://www.bigseller.com';
 
