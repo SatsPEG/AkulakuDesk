@@ -16,7 +16,7 @@ export default async (req, res) => {
   if (!token) return res.status(400).json({ error: 'Missing BigSeller token (query: ?token=xxx)' });
 
   const base = 'https://www.bigseller.com';
-  const target = path || '/web/shop/api/getShopInfo.htm?go=akulaku';
+  const target = path || '/api/v1/shop/authShop/list.json?platform=akulaku';
 
   try {
     const headers = {
