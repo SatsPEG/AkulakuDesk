@@ -1,9 +1,8 @@
 /* =================== LOGIN =================== */
 function doLogin(){
-  const email = document.getElementById('loginEmail').value;
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('app').classList.add('show');
-  showToast('Berhasil masuk sebagai '+email, 'success');
+  showToast('Berhasil masuk sebagai Demo', 'success');
   startSimulations();
 }
 
