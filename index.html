@@ -48,8 +48,9 @@
       <p class="sub">Gunakan kredensial Akulaku Seller Center kamu</p>
 
       <div style="display:flex;flex-direction:column;gap:10px">
-        <button class="login-btn" onclick="window.location='/api/auth/akulaku'">Connect ke Akulaku</button>
-        <div class="demo-hint" style="margin-top:8px">Connect akan membuka alur OAuth resmi Akulaku. Pastikan AKULAKU_CLIENT_ID & AKULAKU_REDIRECT_URI sudah di-set.</div>
+        <button class="login-btn" onclick="window.location.href='/api/auth/akulaku'">Connect ke Akulaku</button>
+        <button class="login-btn" style="background:var(--text-2);box-shadow:none;margin-top:0" onclick="doLogin()">Masuk sebagai Demo</button>
+        <div class="demo-hint">Demo: masuk tanpa OAuth untuk akses Pengaturan & setting BigSeller</div>
       </div>
 
       <div class="login-info-box">
