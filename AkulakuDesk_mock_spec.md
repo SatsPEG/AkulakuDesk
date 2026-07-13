@@ -1,6 +1,6 @@
-# AKULAKUDESK — INTERACTIVE MOCKUP SPEC (for chat.z.ai)
+# AKULAKUDESK — 
 
-Tujuan: Buatkan 1 file HTML/CSS/JS **interaktif (mock, TANPA backend sungguhan)** yang mensimulasikan aplikasi desktop untuk seller/dropshipper Akulaku. Gunakan data contoh (FAKE) yang realistis. Bahasa UI: Indonesia. Tampilan rapi, profesional, seperti aplikasi desktop SaaS beneran (bukan terlihat seperti prototype mentah).
+Tujuan: Buatkan  HTML/CSS/JS **interaktif ** yang mensimulasikan aplikasi desktop untuk seller/dropshipper Akulaku. Gunakan data contoh (FAKE) yang realistis. Bahasa UI: Indonesia. Tampilan rapi, profesional, seperti aplikasi desktop SaaS beneran (bukan terlihat seperti prototype mentah).
 
 Nama App: **AkulakuDesk**
 Tagline: "Pusat kendali toko Akulaku kamu — chat, produk, tren, & settlement dalam satu app."

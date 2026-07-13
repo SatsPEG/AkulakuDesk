@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AkulakuDesk — Pusat Kendali Seller Akulaku</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<!-- ============== LOGIN SCREEN ============== -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-left">
+    <div class="login-brand">
+      <div class="logo-mark">A</div>
+      <div>
+        <div style="font-size:18px;font-weight:800">AkulakuDesk</div>
+        <div style="font-size:11px;color:#8B92A5;letter-spacing:.05em">SELLER CONTROL CENTER</div>
+      </div>
+    </div>
+
+    <div class="login-hero">
+      <h1>Kendalikan toko Akulaku kamu dalam <span>satu aplikasi</span>.</h1>
+      <p>Chat, produk, tren kata kunci, dan settlement — semua dipantau real-time. Session login ditahan agar status chat seller tetap ONLINE 24 jam.</p>
+      <div class="login-feats">
+        <div class="login-feat">
+          <div class="login-feat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
+          <div class="login-feat-text"><strong>Keep-Online untuk Chat</strong>Session ditahan, status seller tetap hijau</div>
+        </div>
+        <div class="login-feat">
+          <div class="login-feat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
+          <div class="login-feat-text"><strong>Monitor Tanpa Auto-Balas</strong>Pantau percakapan tanpa kirim otomatis</div>
+        </div>
+        <div class="login-feat">
+          <div class="login-feat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+          <div class="login-feat-text"><strong>Tren Kata Kunci & Produk</strong>Pantau performa & momentum pasar</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-footer-text">© 2024 AkulakuDesk — Mockup interaktif untuk evaluasi UI/UX</div>
+  </div>
+
+  <div class="login-right">
+    <div class="login-form">
+      <h2>Masuk ke Akun</h2>
+      <p class="sub">Gunakan kredensial Akulaku Seller Center kamu</p>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button class="login-btn" onclick="window.location='/api/auth/akulaku'">Connect ke Akulaku</button>
+        <div class="demo-hint" style="margin-top:8px">Connect akan membuka alur OAuth resmi Akulaku. Pastikan AKULAKU_CLIENT_ID & AKULAKU_REDIRECT_URI sudah di-set.</div>
+      </div>
+
+      <div class="login-info-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF3D57" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <div>Mock: login tidak memverifikasi kredensial sungguhan. Setelah klik Login, kamu langsung masuk ke dashboard.</div>
+      </div>
+
+      <div class="demo-hint">Demo · klik <code>Login</code> untuk masuk</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============== MAIN APP ============== -->
+<div class="app" id="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <div class="logo-mark">A</div>
+      <div class="name">AkulakuDesk<small>Seller Center</small></div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Menu Utama</div>
+      <div class="nav-item active" data-view="dashboard">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        <span>Dashboard</span>
+      </div>
+      <div class="nav-item" data-view="chat">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        <span>Chat (Live)</span>
+        <span class="nav-badge" id="chatBadge">3</span>
+      </div>
+      <div class="nav-item" data-view="produk">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-9M14 17H5M20 7a3 3 0 1 0-6 0M9 17a3 3 0 1 0-6 0"/><circle cx="17" cy="7" r="3"/><circle cx="7" cy="17" r="3"/></svg>
+        <span>Produk</span>
+      </div>
+      <div class="nav-item" data-view="tren">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span>Tren Kata Kunci</span>
+      </div>
+      <div class="nav-item" data-view="order">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span>Order & Settlement</span>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Lainnya</div>
+      <div class="nav-item" data-view="pengaturan">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Pengaturan</span>
+      </div>
+    </div>
+
+    <div class="sidebar-foot">
+      <div class="user-card">
+        <div class="user-avatar">RA</div>
+        <div class="user-info">
+          <div class="nm">Rani Amelia</div>
+          <div class="sh">Toko Andaya · Online</div>
+        </div>
+        <div class="dot" title="Keep-Online aktif"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1 id="pageTitle">Dashboard</h1>
+        <div class="crumb" id="pageCrumb">Ringkasan aktivitas toko kamu hari ini</div>
+      </div>
+      <div class="session-status">
+        <div class="pulse"></div>
+        <span>Session: ONLINE</span>
+      </div>
+      <div class="sync-time">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        <span id="syncTime">Tersinkron 0 menit lalu</span>
+      </div>
+      <div class="search-global">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Cari produk, order, buyer...">
+        <span class="kbd">⌘K</span>
+      </div>
+      <button class="topbar-icon-btn" title="Notifikasi">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div class="notif-dot"></div>
+      </button>
+    </header>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- VIEW: DASHBOARD -->
+      <section class="view active" id="view-dashboard">
+        <div class="dash-grid">
+          <div class="stat-card">
+            <div class="ic red"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+            <div class="lbl">Chat Belum Dibaca</div>
+            <div class="val">12</div>
+            <div class="trend up"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg> 4 baru sejak 1 jam lalu</div>
+            <svg class="spark" width="60" height="24" viewBox="0 0 60 24"><polyline points="0,18 10,14 20,16 30,10 40,12 50,6 60,8" fill="none" stroke="#FF3D57" stroke-width="2"/></svg>
+          </div>
+          <div class="stat-card">
+            <div class="ic amber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-9M14 17H5M20 7a3 3 0 1 0-6 0M9 17a3 3 0 1 0-6 0"/></svg></div>
+            <div class="lbl">Produk Aktif</div>
+            <div class="val">86</div>
+            <div class="trend up"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg> 3 produk baru minggu ini</div>
+            <svg class="spark" width="60" height="24" viewBox="0 0 60 24"><polyline points="0,16 10,14 20,15 30,12 40,13 50,10 60,9" fill="none" stroke="#FFA940" stroke-width="2"/></svg>
+          </div>
+          <div class="stat-card">
+            <div class="ic green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+            <div class="lbl">Penjualan Hari Ini</div>
+            <div class="val">Rp 4,82 Jt</div>
+            <div class="trend up"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg> +18% vs kemarin</div>
+            <svg class="spark" width="60" height="24" viewBox="0 0 60 24"><polyline points="0,20 10,18 20,14 30,16 40,10 50,8 60,5" fill="none" stroke="#10B981" stroke-width="2"/></svg>
+          </div>
+          <div class="stat-card">
+            <div class="ic blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+            <div class="lbl">Settlement Pending</div>
+            <div class="val">Rp 12,4 Jt</div>
+            <div class="trend down"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg> Estimasi cair 7-14 hari</div>
+            <svg class="spark" width="60" height="24" viewBox="0 0 60 24"><polyline points="0,12 10,14 20,11 30,15 40,13 50,16 60,14" fill="none" stroke="#3B82F6" stroke-width="2"/></svg>
+          </div>
+        </div>
+
+        <div class="dash-row">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3>Aktivitas Penjualan 14 Hari</h3>
+                <div class="sub">Total transaksi & chat masuk per hari</div>
+              </div>
+              <div style="display:flex;gap:6px">
+                <button class="btn-ghost" style="padding:5px 10px;font-size:11px">14D</button>
+                <button class="btn-ghost" style="padding:5px 10px;font-size:11px;background:#F4F5F7">30D</button>
+              </div>
+            </div>
+            <div class="chart-container">
+              <div class="chart-legend">
+                <div class="lg"><div class="sw" style="background:#FF3D57"></div>Penjualan (Rp Jt)</div>
+                <div class="lg"><div class="sw" style="background:#FFA940"></div>Chat Masuk</div>
+              </div>
+              <svg class="line-chart" id="salesChart" viewBox="0 0 700 240" preserveAspectRatio="none"></svg>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3>Chat Terkini</h3>
+                <div class="sub">Percakapan butuh perhatian</div>
+              </div>
+            </div>
+            <div class="card-body" style="padding:8px">
+              <div id="dashChatList"></div>
+              <button class="btn-ghost" style="width:100%;justify-content:center;margin-top:8px" onclick="navTo('chat')">Lihat Semua Chat →</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-row-2">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3>Produk Terlaris</h3>
+                <div class="sub">Top 5 produk 7 hari terakhir</div>
+              </div>
+            </div>
+            <div class="card-body" style="padding:8px 16px">
+              <div id="dashTopProd"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3>Status Keep-Online</h3>
+                <div class="sub">Session login Akulaku Seller</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+                <div style="position:relative;width:56px;height:56px">
+                  <svg width="56" height="56" viewBox="0 0 56 56">
+                    <circle cx="28" cy="28" r="24" fill="none" stroke="#E5E7EB" stroke-width="5"/>
+                    <circle cx="28" cy="28" r="24" fill="none" stroke="#10B981" stroke-width="5" stroke-dasharray="150" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 28 28)"/>
+                  </svg>
+                  <div style="position:absolute;inset:0;display:grid;place-items:center;font-weight:800;font-size:14px;color:#047857">100%</div>
+                </div>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:700">Session Stabil</div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Uptime 24 jam terakhir: 99.8%</div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px">
+                <div style="padding:10px;background:#F9FAFB;border-radius:9px">
+                  <div style="color:var(--text-muted);margin-bottom:3px">Login terakhir</div>
+                  <div style="font-weight:700">Hari ini, 08:14</div>
+                </div>
+                <div style="padding:10px;background:#F9FAFB;border-radius:9px">
+                  <div style="color:var(--text-muted);margin-bottom:3px">Reconnect</div>
+                  <div style="font-weight:700">2x (sukses)</div>
+                </div>
+                <div style="padding:10px;background:#F9FAFB;border-radius:9px">
+                  <div style="color:var(--text-muted);margin-bottom:3px">Auto-reply Akulaku</div>
+                  <div style="font-weight:700;color:#047857">Aktif</div>
+                </div>
+                <div style="padding:10px;background:#F9FAFB;border-radius:9px">
+                  <div style="color:var(--text-muted);margin-bottom:3px">Mode pantau</div>
+                  <div style="font-weight:700;color:#FF3D57">Aktif</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW: CHAT -->
+      <section class="view" id="view-chat">
+        <div class="chat-wrap">
+          <div class="chat-list">
+            <div class="chat-list-head">
+              <div class="tabs">
+                <div class="chat-tab active">Semua</div>
+                <div class="chat-tab">Belum Dibaca</div>
+                <div class="chat-tab">Penting</div>
+              </div>
+              <div class="chat-search">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" placeholder="Cari percakapan...">
+              </div>
+            </div>
+            <div class="conv-list" id="convList"></div>
+          </div>
+
+          <div class="chat-thread">
+            <div class="thread-head">
+              <div class="conv-avatar" id="threadAvatar" style="background:linear-gradient(135deg,#FF6B7E,#FFA940)">DW</div>
+              <div class="thread-buyer">
+                <div class="nm" id="threadName">Dewi Wulandari <span style="font-size:11px;font-weight:500;color:var(--text-muted)·">· Buyer</span></div>
+                <div class="meta">
+                  <span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Bandung</span>
+                  <span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7"/></svg> Order: AKL-2410-88213</span>
+                  <span style="color:var(--success);font-weight:600">● Online</span>
+                </div>
+              </div>
+              <div class="thread-actions">
+                <button class="btn-ghost" onclick="showToast('Membuka di app Akulaku...','info')">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  Buka di Akulaku
+                </button>
+                <button class="btn-primary-sm" onclick="markRead()">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  Tandai Dibaca
+                </button>
+              </div>
+            </div>
+
+            <div class="keep-online-banner">
+              <div class="ki">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div><strong>Auto-reply Aktif (bawaan Akulaku).</strong> AkulakuDesk HANYA memantau percakapan, tidak mengirim balasan otomatis.</div>
+              <div class="pulse-mini" title="Keep-Online aktif"></div>
+            </div>
+
+            <div class="thread-messages" id="threadMessages"></div>
+
+            <div class="thread-input">
+              <div class="mock-tag">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                Mode Pantau
+              </div>
+              <input type="text" placeholder="AkulakuDesk tidak mengirim pesan — balasan via app Akulaku" disabled>
+              <div class="send-info">Auto-reply by Akulaku</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW: PRODUK -->
+      <section class="view" id="view-produk">
+        <div class="toolbar">
+          <div class="search-box">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="prodSearch" placeholder="Cari nama produk..." oninput="renderProductTable()">
+          </div>
+          <select id="prodStatusFilter" onchange="renderProductTable()">
+            <option value="all">Semua Status</option>
+            <option value="active">Aktif</option>
+            <option value="inactive">Nonaktif</option>
+          </select>
+          <select id="prodSort" onchange="renderProductTable()">
+            <option value="sold">Urutkan: Terlaris</option>
+            <option value="views">Urutkan: Views</option>
+            <option value="price">Urutkan: Harga</option>
+            <option value="stock">Urutkan: Stok</option>
+          </select>
+          <button class="btn-sync" onclick="syncProducts()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Sinkron · <span id="prodSync">14:22</span>
+          </button>
+        </div>
+
+        <div class="product-table">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th style="width:40px">#</th>
+                <th>Produk</th>
+                <th>Varian</th>
+                <th>Harga Jual</th>
+                <th>Stok</th>
+                <th>Status</th>
+                <th>Views 7H</th>
+                <th>Terjual</th>
+                <th style="width:80px">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="prodTbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- VIEW: TREN -->
+      <section class="view" id="view-tren">
+        <div class="tren-input-card">
+          <div style="margin-bottom:10px;font-size:13px;font-weight:600">Analisis Kata Kunci</div>
+          <div class="tren-input-row">
+            <input type="text" id="trenInput" value="tumbler termal" placeholder="Masukkan kata kunci (cth: tumbler termal)">
+            <select id="trenCat">
+              <option> Semua Kategori</option>
+              <option>Elektronik</option>
+              <option>Fashion</option>
+              <option>Rumah Tangga</option>
+              <option>Kecantikan</option>
+              <option>Otomotif</option>
+            </select>
+            <button onclick="analyzeKeyword()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Analisis
+            </button>
+          </div>
+        </div>
+
+        <div class="tren-grid">
+          <div class="card bar-chart">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <h3 style="font-size:14px;font-weight:700">Volume Pencarian 7 Hari</h3>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Kata kunci: <strong id="trenKeyword" style="color:var(--text)">tumbler termal</strong></div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:11px;color:var(--text-muted)">Total pencarian</div>
+                <div style="font-size:18px;font-weight:800;color:var(--primary)">42.8K</div>
+              </div>
+            </div>
+            <div class="bar-chart-area" id="barChart"></div>
+          </div>
+
+          <div class="card tren-top">
+            <div style="padding:4px 4px 12px;display:flex;justify-content:space-between;align-items:center">
+              <h3 style="font-size:14px;font-weight:700">Top Produk</h3>
+              <span style="font-size:11px;color:var(--text-muted)">untuk keyword ini</span>
+            </div>
+            <div id="trenTopList"></div>
+          </div>
+        </div>
+
+        <div class="tags-card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h3 style="font-size:14px;font-weight:700">Rekomendasi Kata Kunci Terkait</h3>
+            <span style="font-size:11px;color:var(--text-muted)">Klik untuk analisis</span>
+          </div>
+          <div class="tags-list" id="tagsList"></div>
+        </div>
+      </section>
+
+      <!-- VIEW: ORDER -->
+      <section class="view" id="view-order">
+        <div class="summary-grid">
+          <div class="sum-card pending">
+            <div class="lbl">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Total Pending Settlement
+            </div>
+            <div class="val">Rp 12.480.500</div>
+            <div class="meta">23 order · estimasi cair 7-21 hari</div>
+          </div>
+          <div class="sum-card cair">
+            <div class="lbl">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+              Total Sudah Cair Bulan Ini
+            </div>
+            <div class="val">Rp 28.350.000</div>
+            <div class="meta">41 order · cair 1-15 Okt</div>
+          </div>
+          <div class="sum-card est">
+            <div class="lbl">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+              Estimasi Cashflow 30 Hari
+            </div>
+            <div class="val">Rp 34.200.000</div>
+            <div class="meta">Proyeksi dari pending + baru</div>
+          </div>
+        </div>
+
+        <div class="order-table">
+          <div class="card-head">
+            <div>
+              <h3>Daftar Order & Settlement</h3>
+              <div class="sub">Status pencairan BNPL per order</div>
+            </div>
+            <button class="btn-ghost"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export CSV</button>
+          </div>
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Produk</th>
+                <th>Buyer</th>
+                <th>Status</th>
+                <th>Cicilan</th>
+                <th>Uang Cair</th>
+                <th>Tanggal</th>
+              </tr>
+            </thead>
+            <tbody id="orderTbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- VIEW: PENGATURAN -->
+      <section class="view" id="view-pengaturan">
+        <div class="card">
+          <div class="placeholder-view">
+            <div class="placeholder-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </div>
+            <h2>Pengaturan — Segera Hadir</h2>
+            <p>Modul pengaturan sedang dalam tahap perancangan. Berikut beberapa sub-modul yang akan kami tambahkan berdasarkan evaluasi mockup ini.</p>
+            <div class="placeholder-list">
+              <div class="ph-item">
+                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+                <div class="tt">Kredensial Akulaku</div>
+                <div class="ds">Hubungkan & kelola session seller center</div>
+                <span class="soon">SOON</span>
+              </div>
+              <div class="ph-item">
+                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 5-3.5 7.5-8.5 9.5C7.5 19.5 4 17 4 12V6l8-3 8 3z"/></svg></div>
+                <div class="tt">Notifikasi & Alert</div>
+                <div class="ds">Atur notifikasi chat baru, stok menipis, settlement</div>
+                <span class="soon">SOON</span>
+              </div>
+              <div class="ph-item">
+                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                <div class="tt">Keep-Online Engine</div>
+                <div class="ds">Konfigurasi interval refresh session & auto-reconnect</div>
+                <span class="soon">SOON</span>
+              </div>
+              <div class="ph-item">
+                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-9M14 17H5M20 7a3 3 0 1 0-6 0M9 17a3 3 0 1 0-6 0"/></svg></div>
+                <div class="tt">Sync Produk & Harga</div>
+                <div class="ds">Atur frekuensi sinkronisasi katalog & margin</div>
+                <span class="soon">SOON</span>
+              </div>
+              <div class="ph-item">
+                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
+                <div class="tt">Tren & Keyword Watchlist</div>
+                <div class="ds">Pantau keyword favorit & alert saat naik daun</div>
+                <span class="soon">SOON</span>
+              </div>
+              <div class="ph-item">
+                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7"/></svg></div>
+                <div class="tt">Integrasi & API</div>
+                <div class="ds">Webhook, export data, koneksi ke tools lain</div>
+                <span class="soon">SOON</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- Product Detail Overlay -->
+<div class="detail-overlay" id="prodDetail">
+  <div class="detail-panel">
+    <div class="detail-head">
+      <h3>Detail Produk</h3>
+      <button class="detail-close" onclick="closeDetail()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="detail-body" id="detailBody"></div>
+  </div>
+</div>
+
+<!-- Toasts -->
+<div class="toast-stack" id="toastStack"></div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
