@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AkulakuDesk — Pusat Kendali Seller Akulaku</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F5F7; --bg-card:#FFFFFF; --sidebar-bg:#0E131B; --sidebar-bg-2:#161C28;
+  --sidebar-text:#8B92A5; --sidebar-active:#FFFFFF;
+  --primary:#FF3D57; --primary-dark:#E2234B; --primary-glow:rgba(255,61,87,.18);
+  --accent:#FFA940; --text:#1A1F2E; --text-2:#4B5364; --text-muted:#8B92A5;
+  --border:#E5E7EB; --border-soft:#F0F1F4;
+  --success:#10B981; --warning:#F59E0B; --info:#3B82F6; --danger:#EF4444;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;font-size:14px}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,select{font-family:inherit;outline:none}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#d4d7de;border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:#bcbfc8}
+
+/* ============== LOGIN ============== */
+.login-screen{position:fixed;inset:0;display:grid;grid-template-columns:1.1fr 1fr;background:#fff;z-index:100}
+.login-left{background:linear-gradient(135deg,#0E131B 0%,#1a1f2e 60%,#2a1424 100%);position:relative;overflow:hidden;padding:56px;display:flex;flex-direction:column;justify-content:space-between;color:#fff}
+.login-left::before{content:'';position:absolute;width:700px;height:700px;background:radial-gradient(circle,rgba(255,61,87,.35) 0%,transparent 60%);top:-250px;right:-200px;border-radius:50%;animation:floatGlow 8s ease-in-out infinite}
+.login-left::after{content:'';position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(255,169,64,.2) 0%,transparent 60%);bottom:-150px;left:-100px;border-radius:50%;animation:floatGlow 10s ease-in-out infinite reverse}
+@keyframes floatGlow{0%,100%{transform:scale(1) translate(0,0);opacity:.6}50%{transform:scale(1.15) translate(20px,-20px);opacity:.9}}
+.login-brand{position:relative;z-index:2;display:flex;align-items:center;gap:12px}
+.login-brand .logo-mark{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#FF3D57,#FFA940);display:grid;place-items:center;font-weight:800;font-size:20px;color:#fff;box-shadow:0 8px 24px rgba(255,61,87,.4)}
+.login-brand-name{font-size:22px;font-weight:800;letter-spacing:-.02em}
+.login-hero{position:relative;z-index:2}
+.login-hero h1{font-size:42px;font-weight:800;line-height:1.1;letter-spacing:-.03em;margin-bottom:18px}
+.login-hero h1 span{background:linear-gradient(135deg,#FF3D57,#FFA940);-webkit-background-clip:text;background-clip:text;color:transparent}
+.login-hero p{font-size:15px;color:#a8b0c2;line-height:1.6;max-width:420px;margin-bottom:32px}
+.login-feats{display:flex;flex-direction:column;gap:14px;max-width:420px}
+.login-feat{display:flex;align-items:center;gap:14px;padding:14px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;backdrop-filter:blur(10px)}
+.login-feat-icon{width:36px;height:36px;border-radius:10px;background:rgba(255,61,87,.15);display:grid;place-items:center;color:#FF6B7E;flex-shrink:0}
+.login-feat-text{font-size:13px;color:#d8dce5}
+.login-feat-text strong{display:block;color:#fff;font-weight:600;margin-bottom:2px}
+.login-footer-text{position:relative;z-index:2;font-size:12px;color:#5a6378}
+
+.login-right{display:flex;align-items:center;justify-content:center;padding:56px;background:linear-gradient(180deg,#fff 0%,#fafbfc 100%)}
+.login-form{width:100%;max-width:380px}
+.login-form h2{font-size:26px;font-weight:800;letter-spacing:-.02em;margin-bottom:8px}
+.login-form .sub{color:var(--text-muted);margin-bottom:32px}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:8px;letter-spacing:.02em}
+.field input{width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;background:#fff;transition:.2s}
+.field input:focus{border-color:var(--primary);box-shadow:0 0 0 4px var(--primary-glow)}
+.field input::placeholder{color:#c0c4cc}
+.login-btn{width:100%;padding:14px;background:linear-gradient(135deg,#FF3D57,#E2234B);color:#fff;border-radius:10px;font-weight:700;font-size:14px;letter-spacing:.01em;transition:.2s;box-shadow:0 8px 20px rgba(255,61,87,.3);margin-top:8px}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 12px 28px rgba(255,61,87,.4)}
+.login-info-box{margin-top:24px;padding:14px;background:#FFF6F7;border:1px solid #FFE0E6;border-radius:10px;display:flex;gap:10px;font-size:12px;color:#7A3540;line-height:1.5}
+.login-info-box svg{flex-shrink:0;margin-top:1px}
+.demo-hint{margin-top:20px;text-align:center;font-size:12px;color:var(--text-muted)}
+.demo-hint code{background:#f0f1f4;padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-2)}
+
+/* ============== APP LAYOUT ============== */
+.app{display:grid;grid-template-columns:248px 1fr;height:100vh;opacity:0;transition:opacity .4s}
+.app.show{opacity:1}
+
+/* Sidebar */
+.sidebar{background:var(--sidebar-bg);display:flex;flex-direction:column;position:relative;overflow:hidden}
+.sidebar::before{content:'';position:absolute;width:300px;height:300px;background:radial-gradient(circle,rgba(255,61,87,.12) 0%,transparent 60%);top:-100px;right:-100px;border-radius:50%;pointer-events:none}
+.sidebar-head{padding:22px 20px;display:flex;align-items:center;gap:11px;position:relative;z-index:2}
+.sidebar-head .logo-mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#FF3D57,#FFA940);display:grid;place-items:center;font-weight:800;font-size:18px;color:#fff;box-shadow:0 6px 16px rgba(255,61,87,.35)}
+.sidebar-head .name{font-size:17px;font-weight:800;color:#fff;letter-spacing:-.01em}
+.sidebar-head .name small{display:block;font-size:10px;font-weight:500;color:var(--sidebar-text);letter-spacing:.05em;margin-top:1px;text-transform:uppercase}
+
+.nav-section{padding:8px 12px;position:relative;z-index:2}
+.nav-label{font-size:10px;font-weight:600;color:#5a6378;letter-spacing:.1em;padding:8px 12px 6px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:9px;color:var(--sidebar-text);cursor:pointer;font-size:13.5px;font-weight:500;transition:.15s;position:relative;margin-bottom:2px}
+.nav-item:hover{background:rgba(255,255,255,.05);color:#d8dce5}
+.nav-item.active{background:linear-gradient(135deg,rgba(255,61,87,.18),rgba(255,61,87,.08));color:#fff}
+.nav-item.active::before{content:'';position:absolute;left:-12px;top:50%;transform:translateY(-50%);width:3px;height:18px;background:linear-gradient(180deg,#FF3D57,#FFA940);border-radius:0 3px 3px 0}
+.nav-item svg{flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--primary);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;min-width:20px;text-align:center}
+.nav-badge.gray{background:#3a4252}
+
+.sidebar-foot{margin-top:auto;padding:16px;position:relative;z-index:2}
+.user-card{display:flex;align-items:center;gap:11px;padding:11px;background:var(--sidebar-bg-2);border-radius:11px;border:1px solid rgba(255,255,255,.05)}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#FF6B7E,#FFA940);display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px;flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-info .nm{font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-info .sh{font-size:11px;color:var(--sidebar-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-card .dot{width:8px;height:8px;border-radius:50%;background:var(--success);box-shadow:0 0 8px var(--success);animation:livePulse 1.8s ease-in-out infinite}
+@keyframes livePulse{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.6)}50%{box-shadow:0 0 0 6px rgba(16,185,129,0)}}
+
+/* Main */
+.main{display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:64px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:18px;padding:0 24px;flex-shrink:0}
+.topbar-title{display:flex;flex-direction:column}
+.topbar-title h1{font-size:18px;font-weight:700;letter-spacing:-.01em}
+.topbar-title .crumb{font-size:11px;color:var(--text-muted);margin-top:1px}
+.session-status{display:flex;align-items:center;gap:8px;padding:6px 12px;background:#ECFDF5;border:1px solid #A7F3D0;border-radius:20px}
+.session-status .pulse{width:8px;height:8px;border-radius:50%;background:var(--success);position:relative}
+.session-status .pulse::after{content:'';position:absolute;inset:-3px;border-radius:50%;background:var(--success);opacity:.4;animation:livePulse 1.8s ease-in-out infinite}
+.session-status span{font-size:12px;font-weight:600;color:#047857}
+.sync-time{font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:5px}
+.search-global{flex:1;max-width:380px;margin-left:auto;position:relative}
+.search-global input{width:100%;padding:9px 14px 9px 38px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;background:#F9FAFB;transition:.2s}
+.search-global input:focus{border-color:var(--primary);background:#fff;box-shadow:0 0 0 4px var(--primary-glow)}
+.search-global svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--text-muted)}
+.search-global .kbd{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--text-muted);background:#fff;border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace}
+.topbar-icon-btn{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;color:var(--text-2);transition:.15s;position:relative}
+.topbar-icon-btn:hover{background:#F4F5F7}
+.topbar-icon-btn .notif-dot{position:absolute;top:8px;right:8px;width:7px;height:7px;background:var(--primary);border-radius:50%;border:2px solid #fff}
+
+.content{flex:1;overflow-y:auto;padding:24px}
+.view{display:none;animation:fadeUp .35s ease}
+.view.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Cards */
+.card{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.card-head{padding:18px 20px;border-bottom:1px solid var(--border-soft);display:flex;align-items:center;justify-content:between;gap:12px}
+.card-head h3{font-size:14px;font-weight:700;flex:1}
+.card-head .sub{font-size:12px;color:var(--text-muted);margin-top:2px;font-weight:400}
+.card-body{padding:20px}
+
+/* Dashboard */
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;overflow:hidden;transition:.2s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,.06)}
+.stat-card .ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;margin-bottom:14px}
+.stat-card .ic.red{background:#FFF0F3;color:#FF3D57}
+.stat-card .ic.amber{background:#FFF8EB;color:#FFA940}
+.stat-card .ic.green{background:#ECFDF5;color:#10B981}
+.stat-card .ic.blue{background:#EFF6FF;color:#3B82F6}
+.stat-card .lbl{font-size:12px;color:var(--text-muted);font-weight:500;margin-bottom:6px}
+.stat-card .val{font-size:24px;font-weight:800;letter-spacing:-.02em}
+.stat-card .trend{font-size:11px;margin-top:8px;display:flex;align-items:center;gap:4px;font-weight:600}
+.stat-card .trend.up{color:var(--success)}
+.stat-card .trend.down{color:var(--danger)}
+.stat-card .spark{position:absolute;right:14px;bottom:14px;opacity:.7}
+
+.dash-row{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:20px}
+.dash-row-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+.section-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.section-title .dot{width:6px;height:6px;border-radius:50%;background:var(--primary)}
+
+/* Chart */
+.chart-container{padding:20px}
+.chart-legend{display:flex;gap:18px;margin-bottom:14px}
+.chart-legend .lg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted)}
+.chart-legend .lg .sw{width:10px;height:10px;border-radius:3px}
+.line-chart{width:100%;height:240px}
+
+/* Chat list */
+.chat-wrap{display:grid;grid-template-columns:340px 1fr;height:calc(100vh - 64px - 48px);background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.chat-list{border-right:1px solid var(--border-soft);display:flex;flex-direction:column}
+.chat-list-head{padding:16px;border-bottom:1px solid var(--border-soft)}
+.chat-list-head .tabs{display:flex;gap:4px;margin-bottom:12px}
+.chat-tab{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;color:var(--text-muted);transition:.15s}
+.chat-tab.active{background:var(--primary-glow);color:var(--primary)}
+.chat-search{position:relative}
+.chat-search input{width:100%;padding:9px 12px 9px 34px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;background:#F9FAFB}
+.chat-search svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted)}
+.conv-list{flex:1;overflow-y:auto}
+.conv{padding:14px 16px;border-bottom:1px solid var(--border-soft);cursor:pointer;transition:.15s;display:flex;gap:11px;position:relative}
+.conv:hover{background:#F9FAFB}
+.conv.active{background:#FFF6F8}
+.conv.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--primary)}
+.conv-avatar{width:42px;height:42px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;color:#fff;font-weight:700;font-size:14px;position:relative}
+.conv-avatar .online{position:absolute;bottom:0;right:0;width:10px;height:10px;border-radius:50%;background:var(--success);border:2px solid #fff}
+.conv-body{flex:1;min-width:0}
+.conv-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.conv-name{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv-time{font-size:11px;color:var(--text-muted);flex-shrink:0;margin-left:8px}
+.conv-msg{font-size:12px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv-foot{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+.conv-badge{background:var(--primary);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center}
+.conv-tag{font-size:10px;color:var(--info);background:#EFF6FF;padding:1px 6px;border-radius:4px;font-weight:600}
+
+/* Chat thread */
+.chat-thread{display:flex;flex-direction:column;min-width:0}
+.thread-head{padding:14px 20px;border-bottom:1px solid var(--border-soft);display:flex;align-items:center;gap:14px;background:#FCFCFD}
+.thread-buyer{flex:1}
+.thread-buyer .nm{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+.thread-buyer .meta{font-size:12px;color:var(--text-muted);margin-top:2px;display:flex;gap:10px}
+.thread-buyer .meta span{display:flex;align-items:center;gap:4px}
+.thread-actions{display:flex;gap:8px}
+.btn-ghost{padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:600;color:var(--text-2);display:flex;align-items:center;gap:6px;transition:.15s}
+.btn-ghost:hover{background:#F4F5F7;border-color:#cbd0d9}
+.btn-primary-sm{padding:7px 12px;background:var(--primary);color:#fff;border-radius:8px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;transition:.15s}
+.btn-primary-sm:hover{background:var(--primary-dark)}
+
+.keep-online-banner{margin:12px 20px;padding:11px 14px;background:linear-gradient(90deg,#FFF6F8,#FFF8EB);border:1px solid #FFE0E6;border-radius:10px;display:flex;align-items:center;gap:12px;font-size:12px;color:#7A3540}
+.keep-online-banner .ki{width:32px;height:32px;border-radius:8px;background:#fff;display:grid;place-items:center;color:var(--primary);flex-shrink:0}
+.keep-online-banner strong{color:#1A1F2E}
+.keep-online-banner .pulse-mini{width:8px;height:8px;border-radius:50%;background:var(--success);position:relative;margin-left:auto;flex-shrink:0}
+.keep-online-banner .pulse-mini::after{content:'';position:absolute;inset:-3px;border-radius:50%;background:var(--success);opacity:.4;animation:livePulse 1.8s infinite}
+
+.thread-messages{flex:1;overflow-y:auto;padding:20px;background:#FAFBFC;display:flex;flex-direction:column;gap:10px}
+.msg-day{text-align:center;font-size:11px;color:var(--text-muted);margin:8px 0;position:relative}
+.msg-day span{background:#FAFBFC;padding:0 12px;position:relative;z-index:2}
+.msg-day::before{content:'';position:absolute;left:0;right:0;top:50%;height:1px;background:var(--border-soft)}
+.msg{display:flex;gap:10px;max-width:70%;animation:msgIn .3s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.msg.buyer{align-self:flex-start}
+.msg.seller{align-self:flex-end;flex-direction:row-reverse}
+.msg-avatar{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;color:#fff;font-weight:600;font-size:11px}
+.msg-bubble{padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5;position:relative}
+.msg.buyer .msg-bubble{background:#fff;border:1px solid var(--border-soft);border-bottom-left-radius:4px}
+.msg.seller .msg-bubble{background:linear-gradient(135deg,#FF3D57,#E2234B);color:#fff;border-bottom-right-radius:4px}
+.msg-time{font-size:10px;color:var(--text-muted);margin-top:4px}
+.msg.seller .msg-time{text-align:right}
+.msg.system{align-self:center;max-width:none}
+.msg.system .msg-bubble{background:#FFF8EB;border:1px solid #FFE5B5;color:#7A4F0A;font-size:11px;padding:6px 12px;border-radius:8px}
+
+.typing-indicator{padding:6px 14px;display:flex;gap:4px;align-self:flex-start;background:#fff;border:1px solid var(--border-soft);border-radius:14px;border-bottom-left-radius:4px;margin-left:40px}
+.typing-indicator span{width:6px;height:6px;border-radius:50%;background:var(--text-muted);animation:typing 1.2s infinite}
+.typing-indicator span:nth-child(2){animation-delay:.2s}
+.typing-indicator span:nth-child(3){animation-delay:.4s}
+@keyframes typing{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+
+.thread-input{padding:14px 20px;border-top:1px solid var(--border-soft);background:#fff;display:flex;gap:10px;align-items:center}
+.thread-input .mock-tag{font-size:11px;color:var(--text-muted);background:#F4F5F7;padding:5px 10px;border-radius:6px;display:flex;align-items:center;gap:5px}
+.thread-input input{flex:1;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;background:#F9FAFB}
+.thread-input input:focus{border-color:var(--primary);background:#fff}
+.thread-input .send-info{font-size:11px;color:var(--text-muted);font-style:italic}
+
+/* Produk */
+.toolbar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center}
+.toolbar .search-box{position:relative;flex:1;min-width:220px;max-width:320px}
+.toolbar .search-box input{width:100%;padding:9px 12px 9px 34px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;background:#fff}
+.toolbar .search-box svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted)}
+.toolbar select{padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;background:#fff;color:var(--text-2);cursor:pointer}
+.toolbar .btn-sync{margin-left:auto;padding:9px 14px;background:#fff;border:1.5px solid var(--border);border-radius:9px;font-size:12px;font-weight:600;color:var(--text-2);display:flex;align-items:center;gap:6px;transition:.15s}
+.toolbar .btn-sync:hover{background:#F4F5F7;border-color:#cbd0d9}
+
+.product-table{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.tbl{width:100%;border-collapse:collapse}
+.tbl thead th{padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text-muted);letter-spacing:.05em;text-transform:uppercase;background:#FCFCFD;border-bottom:1px solid var(--border-soft)}
+.tbl tbody tr{border-bottom:1px solid var(--border-soft);cursor:pointer;transition:.1s}
+.tbl tbody tr:hover{background:#FAFBFC}
+.tbl tbody tr.selected{background:#FFF6F8}
+.tbl tbody tr:last-child{border-bottom:none}
+.tbl td{padding:14px;font-size:13px;vertical-align:middle}
+.prod-cell{display:flex;align-items:center;gap:10px}
+.prod-thumb{width:42px;height:42px;border-radius:8px;background:#F4F5F7;object-fit:cover;flex-shrink:0}
+.prod-name{font-weight:600;font-size:13px}
+.prod-name small{display:block;font-size:11px;color:var(--text-muted);margin-top:2px;font-weight:400}
+.variant-pill{font-size:11px;background:#F4F5F7;color:var(--text-2);padding:3px 8px;border-radius:5px;font-weight:500}
+.price{font-weight:700;font-family:'JetBrains Mono',monospace;font-size:13px}
+.stock{font-weight:600}
+.stock.low{color:var(--warning)}
+.stock.out{color:var(--danger)}
+.status-badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px}
+.status-badge.active{background:#ECFDF5;color:#047857}
+.status-badge.inactive{background:#F4F5F7;color:#6B7280}
+.status-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+.row-actions{display:flex;gap:6px}
+.row-btn{width:30px;height:30px;border-radius:7px;display:grid;place-items:center;color:var(--text-muted);transition:.15s}
+.row-btn:hover{background:#F4F5F7;color:var(--text-2)}
+
+/* Product detail */
+.detail-overlay{position:fixed;inset:0;background:rgba(15,20,27,.5);backdrop-filter:blur(4px);z-index:50;display:none;align-items:center;justify-content:center;animation:fadeUp .25s ease}
+.detail-overlay.show{display:flex}
+.detail-panel{background:#fff;border-radius:16px;width:680px;max-width:90vw;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;animation:scaleIn .3s ease}
+@keyframes scaleIn{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+.detail-head{padding:20px 24px;border-bottom:1px solid var(--border-soft);display:flex;align-items:center;justify-content:space-between}
+.detail-head h3{font-size:17px;font-weight:700}
+.detail-close{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:var(--text-muted);transition:.15s}
+.detail-close:hover{background:#F4F5F7;color:var(--text)}
+.detail-body{padding:24px;overflow-y:auto}
+.detail-hero{display:flex;gap:18px;margin-bottom:22px}
+.detail-hero img{width:160px;height:160px;border-radius:12px;object-fit:cover;background:#F4F5F7}
+.detail-hero-info{flex:1}
+.detail-hero-info h2{font-size:18px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.detail-hero-info .price-big{font-size:24px;font-weight:800;color:var(--primary);font-family:'JetBrains Mono',monospace;margin-bottom:14px}
+.detail-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.detail-stat{padding:10px 12px;background:#F9FAFB;border-radius:9px}
+.detail-stat .l{font-size:11px;color:var(--text-muted);margin-bottom:3px}
+.detail-stat .v{font-size:14px;font-weight:700}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.detail-card{padding:14px;border:1px solid var(--border-soft);border-radius:11px}
+.detail-card .ttl{font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.detail-card .v{font-size:15px;font-weight:700}
+.detail-card .v.green{color:var(--success)}
+.detail-card .v.red{color:var(--danger)}
+.detail-desc{padding:14px;background:#F9FAFB;border-radius:11px;font-size:13px;color:var(--text-2);line-height:1.6}
+
+/* Tren */
+.tren-input-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:18px}
+.tren-input-row{display:flex;gap:10px;align-items:center}
+.tren-input-row input{flex:1;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px}
+.tren-input-row input:focus{border-color:var(--primary);box-shadow:0 0 0 4px var(--primary-glow)}
+.tren-input-row select{padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;background:#fff;cursor:pointer;color:var(--text-2)}
+.tren-input-row button{padding:12px 20px;background:linear-gradient(135deg,#FF3D57,#E2234B);color:#fff;border-radius:10px;font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px;box-shadow:0 6px 16px rgba(255,61,87,.3)}
+
+.tren-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;margin-bottom:18px}
+.bar-chart{padding:18px}
+.bar-chart-area{display:flex;align-items:flex-end;gap:10px;height:200px;padding:0 6px;margin-top:14px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.bar{width:100%;max-width:42px;background:linear-gradient(180deg,#FF3D57,#FFA940);border-radius:6px 6px 0 0;position:relative;transition:.3s;cursor:pointer;min-height:6px}
+.bar:hover{filter:brightness(1.1)}
+.bar-val{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;color:var(--text-2);opacity:0;transition:.2s}
+.bar:hover .bar-val{opacity:1}
+.bar-label{font-size:11px;color:var(--text-muted);font-weight:500}
+
+.tren-top{padding:18px}
+.tren-item{padding:12px 0;border-bottom:1px solid var(--border-soft);display:flex;gap:12px;align-items:center}
+.tren-item:last-child{border-bottom:none}
+.tren-rank{width:24px;height:24px;border-radius:6px;background:#F4F5F7;display:grid;place-items:center;font-size:11px;font-weight:700;color:var(--text-2)}
+.tren-rank.top1{background:linear-gradient(135deg,#FF3D57,#FFA940);color:#fff}
+.tren-thumb{width:42px;height:42px;border-radius:8px;object-fit:cover;background:#F4F5F7}
+.tren-info{flex:1;min-width:0}
+.tren-info .nm{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tren-info .mt{font-size:11px;color:var(--text-muted);margin-top:2px;display:flex;gap:8px}
+.tren-info .mt .pr{font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--text-2)}
+.tren-trend{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:4px 8px;border-radius:6px}
+.tren-trend.up{background:#ECFDF5;color:#047857}
+.tren-trend.down{background:#FEF2F2;color:#B91C1C}
+.tren-trend.hot{background:#FFF0F3;color:#FF3D57}
+
+.tags-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px}
+.tags-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.tag{padding:7px 12px;background:#F9FAFB;border:1px solid var(--border-soft);border-radius:20px;font-size:12px;font-weight:500;color:var(--text-2);cursor:pointer;transition:.15s;display:flex;align-items:center;gap:5px}
+.tag:hover{background:#FFF6F8;border-color:#FFD0DA;color:var(--primary)}
+.tag .v{font-size:10px;color:var(--text-muted);font-weight:700}
+
+/* Order */
+.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.sum-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden}
+.sum-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.sum-card.pending::before{background:linear-gradient(90deg,#F59E0B,#FBBF24)}
+.sum-card.cair::before{background:linear-gradient(90deg,#10B981,#34D399)}
+.sum-card.est::before{background:linear-gradient(90deg,#3B82F6,#60A5FA)}
+.sum-card .lbl{font-size:12px;color:var(--text-muted);font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.sum-card .val{font-size:26px;font-weight:800;letter-spacing:-.02em;font-family:'JetBrains Mono',monospace}
+.sum-card .meta{font-size:11px;color:var(--text-muted);margin-top:8px}
+
+.order-table{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.settle-badge{font-size:11px;font-weight:600;padding:4px 9px;border-radius:6px;display:inline-flex;align-items:center;gap:5px}
+.settle-badge.pending{background:#FFF8EB;color:#92400E}
+.settle-badge.cair{background:#ECFDF5;color:#047857}
+.settle-badge.partial{background:#EFF6FF;color:#1E40AF}
+.settle-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+
+/* Pengaturan / placeholder */
+.placeholder-view{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center}
+.placeholder-icon{width:88px;height:88px;border-radius:24px;background:linear-gradient(135deg,#FFF0F3,#FFF8EB);display:grid;place-items:center;margin-bottom:22px;color:var(--primary)}
+.placeholder-view h2{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:8px}
+.placeholder-view p{color:var(--text-muted);max-width:420px;line-height:1.6;margin-bottom:24px}
+.placeholder-list{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:680px;width:100%;margin-top:8px}
+.ph-item{padding:16px;border:1.5px dashed var(--border);border-radius:12px;text-align:left;background:#FAFBFC}
+.ph-item .ic{width:32px;height:32px;border-radius:8px;background:#fff;display:grid;place-items:center;color:var(--text-muted);margin-bottom:10px;border:1px solid var(--border)}
+.ph-item .tt{font-size:13px;font-weight:700;margin-bottom:4px}
+.ph-item .ds{font-size:11px;color:var(--text-muted);line-height:1.5}
+.ph-item .soon{font-size:9px;font-weight:700;color:var(--warning);background:#FFF8EB;padding:2px 6px;border-radius:4px;display:inline-block;margin-top:8px;letter-spacing:.05em}
+
+/* Toast */
+.toast-stack{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:10px}
+.toast{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 16px;min-width:280px;max-width:360px;box-shadow:0 12px 32px rgba(0,0,0,.12);display:flex;gap:12px;animation:slideIn .3s ease;position:relative;overflow:hidden}
+.toast::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--primary)}
+.toast.success::before{background:var(--success)}
+.toast.info::before{background:var(--info)}
+@keyframes slideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast .ti{width:34px;height:34px;border-radius:9px;background:#FFF0F3;color:var(--primary);display:grid;place-items:center;flex-shrink:0}
+.toast.success .ti{background:#ECFDF5;color:var(--success)}
+.toast .tb{flex:1;min-width:0}
+.toast .tt{font-size:13px;font-weight:700;margin-bottom:2px}
+.toast .td{font-size:12px;color:var(--text-muted);line-height:1.4}
+
+/* responsive */
+@media (max-width:1100px){
+  .dash-grid{grid-template-columns:repeat(2,1fr)}
+  .dash-row,.dash-row-2,.tren-grid{grid-template-columns:1fr}
+  .summary-grid{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .login-screen{grid-template-columns:1fr}
+  .login-left{display:none}
+  .app{grid-template-columns:64px 1fr}
+  .sidebar-head .name,.nav-item span:not(.nav-badge),.nav-label,.user-info{display:none}
+  .nav-item{justify-content:center}
+  .chat-wrap{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ============== LOGIN SCREEN ============== -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-left">
+    <div class="login-brand">
+      <div class="logo-mark">A</div>
+      <div>
+        <div style="font-size:18px;font-weight:800">AkulakuDesk</div>
+        <div style="font-size:11px;color:#8B92A5;letter-spacing:.05em">SELLER CONTROL CENTER</div>
+      </div>
+    </div>
+
+    <div class="login-hero">
+      <h1>Kendalikan toko Akulaku kamu dalam <span>satu aplikasi</span>.</h1>
+      <p>Chat, produk, tren kata kunci, dan settlement — semua dipantau real-time. Session login ditahan agar status chat seller tetap ONLINE 24 jam.</p>
+      <div class="login-feats">
+        <div class="login-feat">
+          <div class="login-feat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div>
+          <div class="login-feat-text"><strong>Keep-Online untuk Chat</strong>Session ditahan, status seller tetap hijau</div>
+        </div>
+        <div class="login-feat">
+          <div class="login-feat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
+          <div class="login-feat-text"><strong>Monitor Tanpa Auto-Balas</strong>Pantau percakapan tanpa kirim otomatis</div>
+        </div>
+        <div class="login-feat">
+          <div class="login-feat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+          <div class="login-feat-text"><strong>Tren Kata Kunci & Produk</strong>Pantau performa & momentum pasar</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="login-footer-text">© 2024 AkulakuDesk — Mockup interaktif untuk evaluasi UI/UX</div>
+  </div>
+
+  <div class="login-right">
+    <div class="login-form">
+      <h2>Masuk ke Akun</h2>
+      <p class="sub">Gunakan kredensial Akulaku Seller Center kamu</p>
+
+      <div class="field">
+        <label>EMAIL</label>
+        <input type="email" id="loginEmail" value="seller@tokoandaya.com" placeholder="email@toko.com">
+      </div>
+      <div class="field">
+        <label>KATA SANDI</label>
+        <input type="password" id="loginPass" value="mockpassword" placeholder="••••••••">
+      </div>
+
+      <button class="login-btn" onclick="doLogin()">Login ke Akulaku Seller Center</button>
+
+      <div class="login-info-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF3D57" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <div>Mock: login tidak memverifikasi kredensial sungguhan. Setelah klik Login, kamu langsung masuk ke dashboard.</div>
+      </div>
+
+      <div class="demo-hint">Demo · klik <code>Login</code> untuk masuk</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============== MAIN APP ============== -->
+<div class="app" id="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <div class="logo-mark">A</div>
+      <div class="name">AkulakuDesk<small>Seller Center</small></div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Menu Utama</div>
+      <div class="nav-item active" data-view="dashboard">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        <span>Dashboard</span>
+      </div>
+      <div class="nav-item" data-view="chat">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        <span>Chat (Live)</span>
+        <span class="nav-badge" id="chatBadge">3</span>
+      </div>
+      <div class="nav-item" data-view="produk">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-9M14 17H5M20 7a3 3 0 1 0-6 0M9 17a3 3 0 1 0-6 0"/><circle cx="17" cy="7" r="3"/><circle cx="7" cy="17" r="3"/></svg>
+        <span>Produk</span>
+      </div>
+      <div class="nav-item" data-view="tren">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span>Tren Kata Kunci</span>
+      </div>
+      <div class="nav-item" data-view="order">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span>Order & Settlement</span>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Lainnya</div>
+      <div class="nav-item" data-view="pengaturan">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Pengaturan</span>
+      </div>
+    </div>
+
+    <div class="sidebar-foot">
+      <div class="user-card">
+        <div class="user-avatar">RA</div>
+        <div class="user-info">
+          <div class="nm">Rani Amelia</div>
+          <div class="sh">Toko Andaya · Online</div>
+        </div>
+        <div class="dot" title="Keep-Online aktif"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-title">
+        <h1 id="pageTitle">Dashboard</h1>
+        <div class="crumb" id="pageCrumb">Ringkasan aktivitas toko kamu hari ini</div>
+      </div>
+      <div class="session-status">
+        <div class="pulse"></div>
+        <span>Session: ONLINE</span>
+      </div>
+      <div class="sync-time">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        <span id="syncTime">Tersinkron 0 menit lalu</span>
+      </div>
+      <div class="search-global">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Cari produk, order, buyer...">
+        <span class="kbd">⌘K</span>
+      </div>
+      <button class="topbar-icon-btn" title="Notifikasi">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div class="notif-dot"></div>
+      </button>
+    </header>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- VIEW: DASHBOARD -->
+      <section class="view active" id="view-dashboard">
+        <div class="dash-grid">
+          <div class="stat-card">
+            <div class="ic red"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+            <div class="lbl">Chat Belum Dibaca</div>
+            <div class="val">12</div>
+            <div class="trend up"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg> 4 baru sejak 1 jam lalu</div>
+            <svg class="spark" width="60" height="24" viewBox="0 0 60 24"><polyline points="0,18 10,14 20,16 30,10 40,12 50,6 60,8" fill="none" stroke="#FF3D57" stroke-width="2"/></svg>
+          </div>
+          <div class="stat-card">
+            <div class="ic amber"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-9M14 17H5M20 7a3 3 0 1 0-6 0M9 17a3 3 0 1 0-6 0"/></svg></div>
+            <div class="lbl">Produk Aktif</div>
+            <div class="val">86</div>
+            <div class="trend up"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg> 3 produk baru minggu ini</div>
+            <svg class="spark" width="60" height="24" viewBox="0 0 60 24"><polyline points="0,16 10,14 20,15 30,12 40,13 50,10 60,9" fill="none" stroke="#FFA940" stroke-width="2"/></svg>
+          </div>
+          <div class="stat-card">
+            <div class="ic green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+            <div class="lbl">Penjualan Hari Ini</div>
+            <div class="val">Rp 4,82 Jt</div>
+            <div class="trend up"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="18 15 12 9 6 15"/></svg> +18% vs kemarin</div>
+            <svg class="spark" width="60" height="24" viewBox="0 0 60 24"><polyline points="0,20 10,18 20,14 30,16 40,10 50,8 60,5" fill="none" stroke="#10B981" stroke-width="2"/></svg>
+          </div>
+          <div class="stat-card">
+            <div class="ic blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+            <div class="lbl">Settlement Pending</div>
+            <div class="val">Rp 12,4 Jt</div>
+            <div class="trend down"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg> Estimasi cair 7-14 hari</div>
+            <svg class="spark" width="60" height="24" viewBox="0 0 60 24"><polyline points="0,12 10,14 20,11 30,15 40,13 50,16 60,14" fill="none" stroke="#3B82F6" stroke-width="2"/></svg>
+          </div>
+        </div>
+
+        <div class="dash-row">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3>Aktivitas Penjualan 14 Hari</h3>
+                <div class="sub">Total transaksi & chat masuk per hari</div>
+              </div>
+              <div style="display:flex;gap:6px">
+                <button class="btn-ghost" style="padding:5px 10px;font-size:11px">14D</button>
+                <button class="btn-ghost" style="padding:5px 10px;font-size:11px;background:#F4F5F7">30D</button>
+              </div>
+            </div>
+            <div class="chart-container">
+              <div class="chart-legend">
+                <div class="lg"><div class="sw" style="background:#FF3D57"></div>Penjualan (Rp Jt)</div>
+                <div class="lg"><div class="sw" style="background:#FFA940"></div>Chat Masuk</div>
+              </div>
+              <svg class="line-chart" id="salesChart" viewBox="0 0 700 240" preserveAspectRatio="none"></svg>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3>Chat Terkini</h3>
+                <div class="sub">Percakapan butuh perhatian</div>
+              </div>
+            </div>
+            <div class="card-body" style="padding:8px">
+              <div id="dashChatList"></div>
+              <button class="btn-ghost" style="width:100%;justify-content:center;margin-top:8px" onclick="navTo('chat')">Lihat Semua Chat →</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-row-2">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3>Produk Terlaris</h3>
+                <div class="sub">Top 5 produk 7 hari terakhir</div>
+              </div>
+            </div>
+            <div class="card-body" style="padding:8px 16px">
+              <div id="dashTopProd"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3>Status Keep-Online</h3>
+                <div class="sub">Session login Akulaku Seller</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+                <div style="position:relative;width:56px;height:56px">
+                  <svg width="56" height="56" viewBox="0 0 56 56">
+                    <circle cx="28" cy="28" r="24" fill="none" stroke="#E5E7EB" stroke-width="5"/>
+                    <circle cx="28" cy="28" r="24" fill="none" stroke="#10B981" stroke-width="5" stroke-dasharray="150" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 28 28)"/>
+                  </svg>
+                  <div style="position:absolute;inset:0;display:grid;place-items:center;font-weight:800;font-size:14px;color:#047857">100%</div>
+                </div>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:700">Session Stabil</div>
+                  <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Uptime 24 jam terakhir: 99.8%</div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12px">
+                <div style="padding:10px;background:#F9FAFB;border-radius:9px">
+                  <div style="color:var(--text-muted);margin-bottom:3px">Login terakhir</div>
+                  <div style="font-weight:700">Hari ini, 08:14</div>
+                </div>
+                <div style="padding:10px;background:#F9FAFB;border-radius:9px">
+                  <div style="color:var(--text-muted);margin-bottom:3px">Reconnect</div>
+                  <div style="font-weight:700">2x (sukses)</div>
+                </div>
+                <div style="padding:10px;background:#F9FAFB;border-radius:9px">
+                  <div style="color:var(--text-muted);margin-bottom:3px">Auto-reply Akulaku</div>
+                  <div style="font-weight:700;color:#047857">Aktif</div>
+                </div>
+                <div style="padding:10px;background:#F9FAFB;border-radius:9px">
+                  <div style="color:var(--text-muted);margin-bottom:3px">Mode pantau</div>
+                  <div style="font-weight:700;color:#FF3D57">Aktif</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW: CHAT -->
+      <section class="view" id="view-chat">
+        <div class="chat-wrap">
+          <div class="chat-list">
+            <div class="chat-list-head">
+              <div class="tabs">
+                <div class="chat-tab active">Semua</div>
+                <div class="chat-tab">Belum Dibaca</div>
+                <div class="chat-tab">Penting</div>
+              </div>
+              <div class="chat-search">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" placeholder="Cari percakapan...">
+              </div>
+            </div>
+            <div class="conv-list" id="convList"></div>
+          </div>
+
+          <div class="chat-thread">
+            <div class="thread-head">
+              <div class="conv-avatar" id="threadAvatar" style="background:linear-gradient(135deg,#FF6B7E,#FFA940)">DW</div>
+              <div class="thread-buyer">
+                <div class="nm" id="threadName">Dewi Wulandari <span style="font-size:11px;font-weight:500;color:var(--text-muted)·">· Buyer</span></div>
+                <div class="meta">
+                  <span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Bandung</span>
+                  <span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7"/></svg> Order: AKL-2410-88213</span>
+                  <span style="color:var(--success);font-weight:600">● Online</span>
+                </div>
+              </div>
+              <div class="thread-actions">
+                <button class="btn-ghost" onclick="showToast('Membuka di app Akulaku...','info')">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                  Buka di Akulaku
+                </button>
+                <button class="btn-primary-sm" onclick="markRead()">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  Tandai Dibaca
+                </button>
+              </div>
+            </div>
+
+            <div class="keep-online-banner">
+              <div class="ki">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div><strong>Auto-reply Aktif (bawaan Akulaku).</strong> AkulakuDesk HANYA memantau percakapan, tidak mengirim balasan otomatis.</div>
+              <div class="pulse-mini" title="Keep-Online aktif"></div>
+            </div>
+
+            <div class="thread-messages" id="threadMessages"></div>
+
+            <div class="thread-input">
+              <div class="mock-tag">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                Mode Pantau
+              </div>
+              <input type="text" placeholder="AkulakuDesk tidak mengirim pesan — balasan via app Akulaku" disabled>
+              <div class="send-info">Auto-reply by Akulaku</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW: PRODUK -->
+      <section class="view" id="view-produk">
+        <div class="toolbar">
+          <div class="search-box">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="prodSearch" placeholder="Cari nama produk..." oninput="renderProductTable()">
+          </div>
+          <select id="prodStatusFilter" onchange="renderProductTable()">
+            <option value="all">Semua Status</option>
+            <option value="active">Aktif</option>
+            <option value="inactive">Nonaktif</option>
+          </select>
+          <select id="prodSort" onchange="renderProductTable()">
+            <option value="sold">Urutkan: Terlaris</option>
+            <option value="views">Urutkan: Views</option>
+            <option value="price">Urutkan: Harga</option>
+            <option value="stock">Urutkan: Stok</option>
+          </select>
+          <button class="btn-sync" onclick="syncProducts()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Sinkron · <span id="prodSync">14:22</span>
+          </button>
+        </div>
+
+        <div class="product-table">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th style="width:40px">#</th>
+                <th>Produk</th>
+                <th>Varian</th>
+                <th>Harga Jual</th>
+                <th>Stok</th>
+                <th>Status</th>
+                <th>Views 7H</th>
+                <th>Terjual</th>
+                <th style="width:80px">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="prodTbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- VIEW: TREN -->
+      <section class="view" id="view-tren">
+        <div class="tren-input-card">
+          <div style="margin-bottom:10px;font-size:13px;font-weight:600">Analisis Kata Kunci</div>
+          <div class="tren-input-row">
+            <input type="text" id="trenInput" value="tumbler termal" placeholder="Masukkan kata kunci (cth: tumbler termal)">
+            <select id="trenCat">
+              <option> Semua Kategori</option>
+              <option>Elektronik</option>
+              <option>Fashion</option>
+              <option>Rumah Tangga</option>
+              <option>Kecantikan</option>
+              <option>Otomotif</option>
+            </select>
+            <button onclick="analyzeKeyword()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Analisis
+            </button>
+          </div>
+        </div>
+
+        <div class="tren-grid">
+          <div class="card bar-chart">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <h3 style="font-size:14px;font-weight:700">Volume Pencarian 7 Hari</h3>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Kata kunci: <strong id="trenKeyword" style="color:var(--text)">tumbler termal</strong></div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:11px;color:var(--text-muted)">Total pencarian</div>
+                <div style="font-size:18px;font-weight:800;color:var(--primary)">42.8K</div>
+              </div>
+            </div>
+            <div class="bar-chart-area" id="barChart"></div>
+          </div>
+
+          <div class="card tren-top">
+            <div style="padding:4px 4px 12px;display:flex;justify-content:space-between;align-items:center">
+              <h3 style="font-size:14px;font-weight:700">Top Produk</h3>
+              <span style="font-size:11px;color:var(--text-muted)">untuk keyword ini</span>
+            </div>
+            <div id="trenTopList"></div>
+          </div>
+        </div>
+
+        <div class="tags-card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h3 style="font-size:14px;font-weight:700">Rekomendasi Kata Kunci Terkait</h3>
+            <span style="font-size:11px;color:var(--text-muted)">Klik untuk analisis</span>
+          </div>
+          <div class="tags-list" id="tagsList"></div>
+        </div>
+      </section>
+
+      <!-- VIEW: ORDER -->
+      <section class="view" id="view-order">
+        <div class="summary-grid">
+          <div class="sum-card pending">
+            <div class="lbl">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Total Pending Settlement
+            </div>
+            <div class="val">Rp 12.480.500</div>
+            <div class="meta">23 order · estimasi cair 7-21 hari</div>
+          </div>
+          <div class="sum-card cair">
+            <div class="lbl">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+              Total Sudah Cair Bulan Ini
+            </div>
+            <div class="val">Rp 28.350.000</div>
+            <div class="meta">41 order · cair 1-15 Okt</div>
+          </div>
+          <div class="sum-card est">
+            <div class="lbl">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+              Estimasi Cashflow 30 Hari
+            </div>
+            <div class="val">Rp 34.200.000</div>
+            <div class="meta">Proyeksi dari pending + baru</div>
+          </div>
+        </div>
+
+        <div class="order-table">
+          <div class="card-head">
+            <div>
+              <h3>Daftar Order & Settlement</h3>
+              <div class="sub">Status pencairan BNPL per order</div>
+            </div>
+            <button class="btn-ghost"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export CSV</button>
+          </div>
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Produk</th>
+                <th>Buyer</th>
+                <th>Status</th>
+                <th>Cicilan</th>
+                <th>Uang Cair</th>
+                <th>Tanggal</th>
+              </tr>
+            </thead>
+            <tbody id="orderTbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- VIEW: PENGATURAN -->
+      <section class="view" id="view-pengaturan">
+        <div class="card">
+          <div class="placeholder-view">
+            <div class="placeholder-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </div>
+            <h2>Pengaturan — Segera Hadir</h2>
+            <p>Modul pengaturan sedang dalam tahap perancangan. Berikut beberapa sub-modul yang akan kami tambahkan berdasarkan evaluasi mockup ini.</p>
+            <div class="placeholder-list">
+              <div class="ph-item">
+                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+                <div class="tt">Kredensial Akulaku</div>
+                <div class="ds">Hubungkan & kelola session seller center</div>
+                <span class="soon">SOON</span>
+              </div>
+              <div class="ph-item">
+                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 5-3.5 7.5-8.5 9.5C7.5 19.5 4 17 4 12V6l8-3 8 3z"/></svg></div>
+                <div class="tt">Notifikasi & Alert</div>
+                <div class="ds">Atur notifikasi chat baru, stok menipis, settlement</div>
+                <span class="soon">SOON</span>
+              </div>
+              <div class="ph-item">
+                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+                <div class="tt">Keep-Online Engine</div>
+                <div class="ds">Konfigurasi interval refresh session & auto-reconnect</div>
+                <span class="soon">SOON</span>
+              </div>
+              <div class="ph-item">
+                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-9M14 17H5M20 7a3 3 0 1 0-6 0M9 17a3 3 0 1 0-6 0"/></svg></div>
+                <div class="tt">Sync Produk & Harga</div>
+                <div class="ds">Atur frekuensi sinkronisasi katalog & margin</div>
+                <span class="soon">SOON</span>
+              </div>
+              <div class="ph-item">
+                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
+                <div class="tt">Tren & Keyword Watchlist</div>
+                <div class="ds">Pantau keyword favorit & alert saat naik daun</div>
+                <span class="soon">SOON</span>
+              </div>
+              <div class="ph-item">
+                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7"/></svg></div>
+                <div class="tt">Integrasi & API</div>
+                <div class="ds">Webhook, export data, koneksi ke tools lain</div>
+                <span class="soon">SOON</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<!-- Product Detail Overlay -->
+<div class="detail-overlay" id="prodDetail">
+  <div class="detail-panel">
+    <div class="detail-head">
+      <h3>Detail Produk</h3>
+      <button class="detail-close" onclick="closeDetail()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="detail-body" id="detailBody"></div>
+  </div>
+</div>
+
+<!-- Toasts -->
+<div class="toast-stack" id="toastStack"></div>
+
+<script>
+/* =================== DATA =================== */
+const PRODUCT_IMG = [
+  'https://picsum.photos/seed/tumbler/200/200',
+  'https://picsum.photos/seed/headset/200/200',
+  'https://picsum.photos/seed/sepatu/200/200',
+  'https://picsum.photos/seed/powerbank/200/200',
+  'https://picsum.photos/seed/jam/200/200',
+  'https://picsum.photos/seed/tas/200/200',
+  'https://picsum.photos/seed/keyboard/200/200',
+  'https://picsum.photos/seed/lampu/200/200',
+];
+
+const PRODUCTS = [
+  {id:1, name:'Tumbler Termal Vacuum 500ml', variant:'Hitam · 500ml', price:89000, stock:142, status:'active', views:[120,180,150,220,280,310,290], sold:312, fee:5, cost:55000, desc:'Tumbler termal double wall vacuum dengan teknologi保冷保熱. Menjaga suhu dingin 24 jam, panas 12 jam. Material stainless steel 304 food grade, bebas BPA.'},
+  {id:2, name:'Headset Bluetooth Pro Bass TWS', variant:'Putih · Pro', price:245000, stock:23, status:'active', views:[80,95,110,140,180,220,260], sold:178, fee:7, cost:140000, desc:'Headset TWS dengan driver 13mm, noise cancelling, dan baterai 36 jam dengan charging case. Bluetooth 5.3, tahan air IPX5.'},
+  {id:3, name:'Sepatu Sneakers Casual Pria', variant:'42 · Abu', price:320000, stock:8, status:'active', views:[60,75,90,85,100,130,160], sold:94, fee:6, cost:180000, desc:'Sneakers casual upper canvas premium, sol karet anti-slip, insoles memory foam. Cocok untuk aktivitas sehari-hari.'},
+  {id:4, name:'Power Bank 20000mAh Fast Charging', variant:'20K · Hitam', price:179000, stock:0, status:'inactive', views:[200,240,210,260,290,310,280], sold:421, fee:6, cost:95000, desc:'Power bank 20000mAh PD 22.5W fast charging, 2 port USB + 1 Type-C. LED display, perlindungan over-charge & suhu.'},
+  {id:5, name:'Jam Tangan Pria Sport Anti Air', variant:'Hitam · 44mm', price:215000, stock:67, status:'active', views:[110,130,120,155,180,200,220], sold:156, fee:6, cost:110000, desc:'Jam tangan sporty dengan layar digital, chronograph, alarm, dan tahan air 50M. Strap rubber nyaman dipakai olahraga.'},
+  {id:6, name:'Tas Selempang Wanita Canvas', variant:'Krem · L', price:135000, stock:34, status:'active', views:[70,85,95,110,125,140,165], sold:88, fee:5, cost:68000, desc:'Tas selempang canvas premium dengan tali adjustable, 3 kompartimen, cocok untuk harian & travel. Tampilan minimalis.'},
+  {id:7, name:'Keyboard Mechanical RGB 87 Keys', variant:'Blue Switch', price:425000, stock:12, status:'active', views:[50,65,80,95,110,130,150], sold:67, fee:7, cost:260000, desc:'Keyboard mechanical 87 keys dengan blue switch tactile, RGB backlight 19 mode, hot-swappable, USB Type-C detachable.'},
+  {id:8, name:'Lampu Meja LED Touch Dimmable', variant:'Putih', price:95000, stock:89, status:'active', views:[40,55,70,80,95,115,135], sold:134, fee:5, cost:48000, desc:'Lampu meja LED touch control dengan 3 mode warna & 5 level brightness. Port USB untuk charging handphone. Hemat energi 80%.'},
+];
+
+const CONVERSATIONS = [
+  {id:1, name:'Dewi Wulandari', city:'Bandung', order:'AKL-2410-88213', color:'#FF6B7E', initial:'DW', online:true, unread:2, last:'Kak, tumbler yang hitam masih ready?', time:'14:32', messages:[
+    {from:'buyer', text:'Halo kak, saya mau tanya tumbler termal 500ml', time:'14:28'},
+    {from:'seller', text:'Halo kak Dewi, ada yang bisa dibantu? 😊', time:'14:29'},
+    {from:'buyer', text:'Yang warna hitam masih ready stoknya?', time:'14:32'},
+  ]},
+  {id:2, name:'Budi Santoso', city:'Jakarta', order:'AKL-2410-88109', color:'#5B8DEF', initial:'BS', online:false, unread:1, last:'Orderan saya kok belum dikirim ya?', time:'14:15', messages:[
+    {from:'buyer', text:'Selamat siang', time:'14:10'},
+    {from:'buyer', text:'Orderan saya AKL-2410-88109 kok belum dikirim ya?', time:'14:15'},
+  ]},
+  {id:3, name:'Siti Rahmawati', city:'Surabaya', order:'AKL-2410-87954', color:'#A78BFA', initial:'SR', online:true, unread:0, last:'Sudah kak, terima kasih 🙏', time:'13:48', messages:[
+    {from:'buyer', text:'Kak, headset TWS nya ada garansi?', time:'13:40'},
+    {from:'seller', text:'Ada kak, garansi 1 tahun resmi', time:'13:42'},
+    {from:'buyer', text:'Sudah kak, terima kasih 🙏', time:'13:48'},
+  ]},
+  {id:4, name:'Andi Pratama', city:'Medan', order:'AKL-2410-87890', color:'#10B981', initial:'AP', online:false, unread:0, last:'Oke ditunggu ya kak', time:'12:30', messages:[
+    {from:'buyer', text:'Kak powerbank 20000mAh restock belum?', time:'12:20'},
+    {from:'seller', text:'Dalam proses restock kak, estimasi 3 hari lagi', time:'12:25'},
+    {from:'buyer', text:'Oke ditunggu ya kak', time:'12:30'},
+  ]},
+  {id:5, name:'Maya Sari', city:'Yogyakarta', order:'AKL-2410-87765', color:'#F59E0B', initial:'MS', online:true, unread:0, last:'Bisa COD area Jogja?', time:'11:45', messages:[
+    {from:'buyer', text:'Bisa COD area Jogja?', time:'11:45'},
+  ]},
+  {id:6, name:'Rizki Firmansyah', city:'Semarang', order:'AKL-2410-87654', color:'#EC4899', initial:'RF', online:false, unread:0, last:'Terima kasih infonya kak', time:'10:22', messages:[
+    {from:'buyer', text:'Sepatu size 42 restock kapan?', time:'10:15'},
+    {from:'seller', text:'Sudah ready kak, silakan dipesan', time:'10:20'},
+    {from:'buyer', text:'Terima kasih infonya kak', time:'10:22'},
+  ]},
+];
+
+const INCOMING_MESSAGES = [
+  {conv:1, text:'Apakah bisa dikirim hari ini kak?', delay:6000},
+  {conv:2, text:'Soalnya udah 2 hari belum update resi', delay:12000},
+  {conv:5, text:'Atau bisa meet up di Malioboro?', delay:20000},
+  {conv:1, text:'Kalau ready saya order sekarang', delay:28000},
+  {conv:3, text:'Kak, tambah lagi 1 dong, buat hadiah', delay:36000},
+];
+
+const ORDERS = [
+  {id:'AKL-2410-88213', product:'Tumbler Termal 500ml', buyer:'Dewi Wulandari', status:'Diproses', cicilan:'3x', settle:'pending', settleText:'Belum Cair', date:'24 Okt 2024'},
+  {id:'AKL-2410-88109', product:'Headset Bluetooth TWS', buyer:'Budi Santoso', status:'Dikirim', cicilan:'6x', settle:'partial', settleText:'Cair 50% · Nov', date:'22 Okt 2024'},
+  {id:'AKL-2410-87954', product:'Sepatu Sneakers 42', buyer:'Siti Rahmawati', status:'Selesai', cicilan:'3x', settle:'cair', settleText:'Cair · 22 Okt', date:'15 Okt 2024'},
+  {id:'AKL-2410-87890', product:'Power Bank 20000mAh', buyer:'Andi Pratama', status:'Diproses', cicilan:'12x', settle:'pending', settleText:'Belum Cair', date:'24 Okt 2024'},
+  {id:'AKL-2410-87765', product:'Jam Tangan Sport 44mm', buyer:'Maya Sari', status:'Dikirim', cicilan:'6x', settle:'partial', settleText:'Cair 50% · Nov', date:'20 Okt 2024'},
+  {id:'AKL-2410-87654', product:'Tas Selempang Canvas', buyer:'Rizki Firmansyah', status:'Selesai', cicilan:'3x', settle:'cair', settleText:'Cair · 18 Okt', date:'12 Okt 2024'},
+  {id:'AKL-2410-87543', product:'Keyboard Mechanical RGB', buyer:'Joko Widodo', status:'Dikirim', cicilan:'6x', settle:'partial', settleText:'Cair 50% · Nov', date:'19 Okt 2024'},
+  {id:'AKL-2410-87432', product:'Lampu Meja LED Touch', buyer:'Citra Lestari', status:'Selesai', cicilan:'3x', settle:'cair', settleText:'Cair · 14 Okt', date:'10 Okt 2024'},
+  {id:'AKL-2410-87321', product:'Tumbler Termal 500ml', buyer:'Hendra Wijaya', status:'Diproses', cicilan:'3x', settle:'pending', settleText:'Belum Cair', date:'24 Okt 2024'},
+  {id:'AKL-2410-87210', product:'Headset Bluetooth TWS', buyer:'Lina Marlina', status:'Dikirim', cicilan:'12x', settle:'pending', settleText:'Belum Cair', date:'23 Okt 2024'},
+];
+
+const TREND_TOP = [
+  {name:'Tumbler Termal Vacuum 500ml', price:89000, sold:312, trend:'up', pct:'+42%', hot:true, img:PRODUCT_IMG[0]},
+  {name:'Bottle Susu Estetik 350ml', price:65000, sold:268, trend:'up', pct:'+28%', hot:true, img:'https://picsum.photos/seed/bottle/200/200'},
+  {name:'Tumbler Anak Karakter 400ml', price:78000, sold:198, trend:'up', pct:'+15%', hot:false, img:'https://picsum.photos/seed/kids/200/200'},
+  {name:'Termos Lipat Mini 250ml', price:55000, sold:142, trend:'down', pct:'-8%', hot:false, img:'https://picsum.photos/seed/mini/200/200'},
+  {name:'Tumbler Charger Genggam', price:145000, sold:124, trend:'up', pct:'+22%', hot:false, img:'https://picsum.photos/seed/charge/200/200'},
+];
+
+const RELATED_KEYWORDS = [
+  {tag:'tumbler estetik', vol:'12.4K'},
+  {tag:'botol minum termal', vol:'8.2K'},
+  {tag:'tumbler anak', vol:'6.8K'},
+  {tag:'termos vacuum', vol:'5.1K'},
+  {tag:'tumbler custom', vol:'4.7K'},
+  {tag:'botol susu', vol:'3.9K'},
+  {tag:'tumbler murah', vol:'3.2K'},
+  {tag:'flask 500ml', vol:'2.8K'},
+];
+
+const BUYER_MSGS_POOL = [
+  'Kak, mau tanya produknya',
+  'Apakah ready stoknya?',
+  'Bisa dikirim hari ini?',
+  'Berapa lama pengiriman ke saya?',
+  'Apakah bisa COD?',
+  'Produknya ada garansi?',
+  'Saya mau order sekarang',
+  'Warna lain ada?',
+  'Size chart-nya bagaimana?',
+  'Harga masih bisa nego?',
+];
+
+/* =================== LOGIN =================== */
+function doLogin(){
+  const email = document.getElementById('loginEmail').value;
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').classList.add('show');
+  showToast('Berhasil masuk sebagai '+email, 'success');
+  startSimulations();
+}
+
+/* =================== NAVIGATION =================== */
+const VIEW_META = {
+  dashboard:{title:'Dashboard', crumb:'Ringkasan aktivitas toko kamu hari ini'},
+  chat:{title:'Chat (Live)', crumb:'Pantau percakapan buyer — tanpa mengirim balasan'},
+  produk:{title:'Produk', crumb:'Kelola katalog & performa produk'},
+  tren:{title:'Tren Kata Kunci', crumb:'Analisis pencarian & momentum pasar'},
+  order:{title:'Order & Settlement', crumb:'Status order dan pencairan BNPL'},
+  pengaturan:{title:'Pengaturan', crumb:'Konfigurasi aplikasi & integrasi'},
+};
+
+function navTo(view){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelector(`.nav-item[data-view="${view}"]`).classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  document.getElementById('pageTitle').textContent = VIEW_META[view].title;
+  document.getElementById('pageCrumb').textContent = VIEW_META[view].crumb;
+}
+
+document.querySelectorAll('.nav-item').forEach(item=>{
+  item.addEventListener('click', ()=>navTo(item.dataset.view));
+});
+
+/* =================== TOAST =================== */
+function showToast(text, type='default', title=null){
+  const stack = document.getElementById('toastStack');
+  const t = document.createElement('div');
+  t.className='toast '+type;
+  const icon = type==='success'
+    ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'
+    : type==='info'
+    ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>'
+    : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>';
+  t.innerHTML = `<div class="ti">${icon}</div><div class="tb"><div class="tt">${title||'Notifikasi'}</div><div class="td">${text}</div></div>`;
+  stack.appendChild(t);
+  setTimeout(()=>{
+    t.style.transition='.3s'; t.style.opacity='0'; t.style.transform='translateX(120%)';
+    setTimeout(()=>t.remove(), 300);
+  }, 4500);
+}
+
+/* =================== DASHBOARD =================== */
+function renderSalesChart(){
+  const svg = document.getElementById('salesChart');
+  const W=700, H=240, P=30;
+  const days = 14;
+  const sales = [2.1,2.4,1.8,3.2,2.8,3.5,4.1,3.8,4.5,3.9,4.2,5.1,4.8,4.8];
+  const chats = [8,12,10,15,14,18,22,19,24,20,23,28,25,27];
+  const maxS = 6, maxC = 30;
+  let path1='', path2='', area='';
+  sales.forEach((v,i)=>{
+    const x = P + (i*(W-P*2))/(days-1);
+    const y = H-P - (v/maxS)*(H-P*2);
+    path1 += (i===0?'M':'L')+x+','+y+' ';
+    if(i===0) area = 'M'+x+','+(H-P);
+    area += ' L'+x+','+y;
+    if(i===sales.length-1) area += ' L'+x+','+(H-P)+' Z';
+  });
+  chats.forEach((v,i)=>{
+    const x = P + (i*(W-P*2))/(days-1);
+    const y = H-P - (v/maxC)*(H-P*2);
+    path2 += (i===0?'M':'L')+x+','+y+' ';
+  });
+  let grid='';
+  for(let i=0;i<=4;i++){
+    const y = P + i*(H-P*2)/4;
+    grid += `<line x1="${P}" y1="${y}" x2="${W-P}" y2="${y}" stroke="#F0F1F4" stroke-width="1"/>`;
+    const lbl = (6 - i*1.5).toFixed(1);
+    grid += `<text x="${P-8}" y="${y+4}" text-anchor="end" font-size="10" fill="#8B92A5">${lbl}</text>`;
+  }
+  let xLabels='';
+  for(let i=0;i<days;i+=2){
+    const x = P + (i*(W-P*2))/(days-1);
+    xLabels += `<text x="${x}" y="${H-P+18}" text-anchor="middle" font-size="10" fill="#8B92A5">${14-i}h</text>`;
+  }
+  svg.innerHTML = `
+    ${grid}
+    <defs>
+      <linearGradient id="grad1" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#FF3D57" stop-opacity="0.25"/>
+        <stop offset="100%" stop-color="#FF3D57" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <path d="${area}" fill="url(#grad1)"/>
+    <path d="${path1}" fill="none" stroke="#FF3D57" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="${path2}" fill="none" stroke="#FFA940" stroke-width="2" stroke-dasharray="4,4" stroke-linecap="round"/>
+    ${xLabels}
+  `;
+}
+
+function renderDashChat(){
+  const list = document.getElementById('dashChatList');
+  list.innerHTML = CONVERSATIONS.slice(0,4).map(c=>`
+    <div style="display:flex;gap:11px;padding:10px 12px;border-radius:9px;cursor:pointer;transition:.15s" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='transparent'" onclick="navTo('chat')">
+      <div class="conv-avatar" style="background:${c.color};width:36px;height:36px;font-size:12px">${c.initial}${c.online?'<div class="online"></div>':''}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:13px;font-weight:600">${c.name}</div>
+          <div style="font-size:10px;color:var(--text-muted)">${c.time}</div>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px">${c.last}</div>
+      </div>
+      ${c.unread?`<div class="conv-badge" style="align-self:center">${c.unread}</div>`:''}
+    </div>
+  `).join('');
+}
+
+function renderDashTopProd(){
+  const list = document.getElementById('dashTopProd');
+  const top = [...PRODUCTS].sort((a,b)=>b.sold-a.sold).slice(0,5);
+  list.innerHTML = top.map((p,i)=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-soft)">
+      <div style="width:22px;text-align:center;font-weight:800;color:${i===0?'#FF3D57':'var(--text-muted)'};font-size:13px">${i+1}</div>
+      <img src="${PRODUCT_IMG[p.id-1]}" style="width:38px;height:38px;border-radius:8px;object-fit:cover">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${p.sold} terjual · ${p.views.reduce((a,b)=>a+b,0)} views</div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;color:var(--success)">+${(p.sold*0.1).toFixed(0)}</div>
+    </div>
+  `).join('');
+}
+
+/* =================== CHAT =================== */
+let activeConvId = 1;
+function renderConvList(){
+  const list = document.getElementById('convList');
+  list.innerHTML = CONVERSATIONS.map(c=>`
+    <div class="conv ${c.id===activeConvId?'active':''}" onclick="openConv(${c.id})">
+      <div class="conv-avatar" style="background:${c.color}">${c.initial}${c.online?'<div class="online"></div>':''}</div>
+      <div class="conv-body">
+        <div class="conv-top">
+          <div class="conv-name">${c.name}</div>
+          <div class="conv-time">${c.time}</div>
+        </div>
+        <div class="conv-msg">${c.last}</div>
+        <div class="conv-foot">
+          ${c.unread?`<div class="conv-badge">${c.unread}</div>`:'<div></div>'}
+          <div class="conv-tag">${c.order}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openConv(id){
+  activeConvId = id;
+  const c = CONVERSATIONS.find(x=>x.id===id);
+  if(!c) return;
+  c.unread = 0;
+  document.getElementById('threadAvatar').textContent = c.initial;
+  document.getElementById('threadAvatar').style.background = c.color;
+  document.getElementById('threadName').innerHTML = c.name + ' <span style="font-size:11px;font-weight:500;color:var(--text-muted)">· Buyer</span>';
+  document.querySelector('.thread-buyer .meta').innerHTML = `
+    <span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ${c.city}</span>
+    <span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7"/></svg> Order: ${c.order}</span>
+    <span style="color:${c.online?'var(--success)':'var(--text-muted)'};font-weight:600">● ${c.online?'Online':'Offline'}</span>
+  `;
+  renderConvList();
+  renderMessages();
+  updateChatBadge();
+}
+
+function renderMessages(){
+  const c = CONVERSATIONS.find(x=>x.id===activeConvId);
+  if(!c) return;
+  const box = document.getElementById('threadMessages');
+  box.innerHTML = `<div class="msg-day"><span>Hari ini</span></div>` + c.messages.map(m=>{
+    const isBuyer = m.from==='buyer';
+    return `
+      <div class="msg ${isBuyer?'buyer':'seller'}">
+        ${isBuyer?`<div class="msg-avatar" style="background:${c.color}">${c.initial}</div>`:''}
+        <div>
+          <div class="msg-bubble">${m.text}</div>
+          <div class="msg-time">${m.time}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  box.scrollTop = box.scrollHeight;
+}
+
+function markRead(){
+  const c = CONVERSATIONS.find(x=>x.id===activeConvId);
+  c.unread = 0;
+  renderConvList();
+  updateChatBadge();
+  showToast('Percakapan ditandai dibaca. Balasan via app Akulaku.','success','Tandai Dibaca');
+}
+
+function updateChatBadge(){
+  const total = CONVERSATIONS.reduce((a,c)=>a+c.unread,0);
+  const badge = document.getElementById('chatBadge');
+  if(total>0){
+    badge.style.display='inline-block';
+    badge.textContent = total;
+  } else {
+    badge.style.display='none';
+  }
+}
+
+function showTyping(){
+  const box = document.getElementById('threadMessages');
+  if(document.querySelector('.typing-indicator')) return;
+  const c = CONVERSATIONS.find(x=>x.id===activeConvId);
+  if(!c || !c.online) return;
+  const t = document.createElement('div');
+  t.className='typing-indicator';
+  t.innerHTML='<span></span><span></span><span></span>';
+  box.appendChild(t);
+  box.scrollTop = box.scrollHeight;
+  setTimeout(()=>{
+    t.remove();
+  }, 2500);
+}
+
+function receiveMessage(msg){
+  const c = CONVERSATIONS.find(x=>x.id===msg.conv);
+  if(!c) return;
+  const now = new Date();
+  const time = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  c.messages.push({from:'buyer', text:msg.text, time});
+  c.last = msg.text;
+  c.time = time;
+  if(c.id!==activeConvId) c.unread = (c.unread||0)+1;
+  renderConvList();
+  if(c.id===activeConvId) renderMessages();
+  updateChatBadge();
+  showToast(`Pesan baru dari ${c.name}: "${msg.text.substring(0,40)}${msg.text.length>40?'...':''}"`, 'default', 'Chat Masuk');
+}
+
+/* =================== PRODUK =================== */
+function renderProductTable(){
+  const q = document.getElementById('prodSearch').value.toLowerCase();
+  const status = document.getElementById('prodStatusFilter').value;
+  const sort = document.getElementById('prodSort').value;
+  let list = PRODUCTS.filter(p=>{
+    if(q && !p.name.toLowerCase().includes(q)) return false;
+    if(status!=='all' && p.status!==status) return false;
+    return true;
+  });
+  list.sort((a,b)=>{
+    if(sort==='sold') return b.sold-a.sold;
+    if(sort==='views') return b.views.reduce((x,y)=>x+y,0)-a.views.reduce((x,y)=>x+y,0);
+    if(sort==='price') return b.price-a.price;
+    if(sort==='stock') return b.stock-a.stock;
+  });
+  const tbody = document.getElementById('prodTbody');
+  tbody.innerHTML = list.map((p,i)=>{
+    const totalViews = p.views.reduce((a,b)=>a+b,0);
+    const maxV = Math.max(...p.views);
+    const sparkPts = p.views.map((v,i)=>`${(i*60/(p.views.length-1))},${20-(v/maxV)*18}`).join(' ');
+    const margin = p.price - p.cost - (p.price*p.fee/100);
+    return `
+      <tr onclick="openDetail(${p.id})">
+        <td style="color:var(--text-muted);font-weight:600">${i+1}</td>
+        <td>
+          <div class="prod-cell">
+            <img class="prod-thumb" src="${PRODUCT_IMG[p.id-1]}">
+            <div class="prod-name">${p.name}<small>Margin: Rp ${margin.toLocaleString('id-ID')}</small></div>
+          </div>
+        </td>
+        <td><span class="variant-pill">${p.variant}</span></td>
+        <td><span class="price">Rp ${p.price.toLocaleString('id-ID')}</span></td>
+        <td><span class="stock ${p.stock===0?'out':p.stock<20?'low':''}">${p.stock===0?'Habis':p.stock}</span></td>
+        <td><span class="status-badge ${p.status==='active'?'active':'inactive'}">${p.status==='active'?'Aktif':'Nonaktif'}</span></td>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px">
+            <svg width="60" height="22" viewBox="0 0 60 22"><polyline points="${sparkPts}" fill="none" stroke="${p.status==='active'?'#FF3D57':'#8B92A5'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span style="font-size:11px;color:var(--text-muted);font-weight:600">${totalViews}</span>
+          </div>
+        </td>
+        <td style="font-weight:700">${p.sold}</td>
+        <td>
+          <div class="row-actions" onclick="event.stopPropagation()">
+            <button class="row-btn" title="Lihat"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+            <button class="row-btn" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('') || `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted)">Tidak ada produk yang cocok</td></tr>`;
+}
+
+function openDetail(id){
+  const p = PRODUCTS.find(x=>x.id===id);
+  if(!p) return;
+  const fee = Math.round(p.price*p.fee/100);
+  const margin = p.price - p.cost - fee;
+  const marginPct = ((margin/p.price)*100).toFixed(1);
+  const totalViews = p.views.reduce((a,b)=>a+b,0);
+  document.getElementById('detailBody').innerHTML = `
+    <div class="detail-hero">
+      <img src="${PRODUCT_IMG[p.id-1]}">
+      <div class="detail-hero-info">
+        <h2>${p.name}</h2>
+        <div class="price-big">Rp ${p.price.toLocaleString('id-ID')}</div>
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+          <span class="status-badge ${p.status==='active'?'active':'inactive'}">${p.status==='active'?'Aktif':'Nonaktif'}</span>
+          <span class="variant-pill">${p.variant}</span>
+        </div>
+        <div class="detail-stats">
+          <div class="detail-stat"><div class="l">Stok</div><div class="v">${p.stock}</div></div>
+          <div class="detail-stat"><div class="l">Terjual</div><div class="v">${p.sold}</div></div>
+          <div class="detail-stat"><div class="l">Views 7H</div><div class="v">${totalViews}</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-card">
+        <div class="ttl">Harga Modal</div>
+        <div class="v">Rp ${p.cost.toLocaleString('id-ID')}</div>
+      </div>
+      <div class="detail-card">
+        <div class="ttl">Fee Akulaku (${p.fee}%)</div>
+        <div class="v red">Rp ${fee.toLocaleString('id-ID')}</div>
+      </div>
+      <div class="detail-card">
+        <div class="ttl">Margin / Unit</div>
+        <div class="v green">Rp ${margin.toLocaleString('id-ID')} (${marginPct}%)</div>
+      </div>
+      <div class="detail-card">
+        <div class="ttl">Estimasi Profit (sold)</div>
+        <div class="v green">Rp ${(margin*p.sold).toLocaleString('id-ID')}</div>
+      </div>
+    </div>
+    <div class="detail-desc">${p.desc}</div>
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button class="btn-ghost" style="flex:1;justify-content:center;padding:11px" onclick="showToast('Membuka editor di Akulaku Seller Center','info')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit di Akulaku</button>
+      <button class="btn-primary-sm" style="flex:1;justify-content:center;padding:11px" onclick="closeDetail();showToast('Produk disinkronkan','success')">Sinkron Ulang</button>
+    </div>
+  `;
+  document.getElementById('prodDetail').classList.add('show');
+}
+
+function closeDetail(){
+  document.getElementById('prodDetail').classList.remove('show');
+}
+
+function syncProducts(){
+  const now = new Date();
+  const t = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  document.getElementById('prodSync').textContent = t;
+  showToast('Katalog produk disinkronkan dengan Akulaku Seller Center','success','Sinkron Berhasil');
+}
+
+/* =================== TREN =================== */
+function renderBarChart(){
+  const data = [3200,4100,3800,5200,6100,7400,6800];
+  const max = Math.max(...data);
+  const labels = ['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+  const chart = document.getElementById('barChart');
+  chart.innerHTML = data.map((v,i)=>{
+    const h = (v/max)*100;
+    return `
+      <div class="bar-col">
+        <div class="bar" style="height:${h}%;background:linear-gradient(180deg,${i===5?'#FF3D57':'#FF8C9F'},${i===5?'#E2234B':'#FFA940'})">
+          <div class="bar-val">${(v/1000).toFixed(1)}K</div>
+        </div>
+        <div class="bar-label">${labels[i]}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderTrenTop(){
+  const list = document.getElementById('trenTopList');
+  list.innerHTML = TREND_TOP.map((p,i)=>`
+    <div class="tren-item">
+      <div class="tren-rank ${i===0?'top1':''}">${i+1}</div>
+      <img class="tren-thumb" src="${p.img}">
+      <div class="tren-info">
+        <div class="nm">${p.name}</div>
+        <div class="mt">
+          <span class="pr">Rp ${p.price.toLocaleString('id-ID')}</span>
+          <span>· ${p.sold} terjual</span>
+        </div>
+      </div>
+      <div class="tren-trend ${p.trend}">
+        ${p.trend==='up'?'▲':'▼'} ${p.pct}
+        ${p.hot?'<div style="font-size:9px;margin-top:2px;background:#FF3D57;color:#fff;padding:1px 5px;border-radius:3px">HOT</div>':''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderTags(){
+  const list = document.getElementById('tagsList');
+  list.innerHTML = RELATED_KEYWORDS.map(k=>`
+    <div class="tag" onclick="document.getElementById('trenInput').value='${k.tag}';analyzeKeyword()">
+      ${k.tag}
+      <span class="v">${k.v}</span>
+    </div>
+  `).join('');
+}
+
+function analyzeKeyword(){
+  const kw = document.getElementById('trenInput').value || 'tumbler termal';
+  document.getElementById('trenKeyword').textContent = kw;
+  renderBarChart();
+  showToast(`Menganalisis kata kunci: "${kw}"`,'info','Analisis Tren');
+}
+
+/* =================== ORDER =================== */
+function renderOrders(){
+  const tbody = document.getElementById('orderTbody');
+  const statusColor = {
+    'Diproses':'warning',
+    'Dikirim':'info',
+    'Selesai':'success'
+  };
+  tbody.innerHTML = ORDERS.map(o=>{
+    const prod = PRODUCTS.find(p=>p.name.includes(o.product.split(' ')[0])) || PRODUCTS[0];
+    return `
+      <tr>
+        <td><span style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;color:var(--primary)">${o.id}</span></td>
+        <td>
+          <div class="prod-cell">
+            <img class="prod-thumb" src="${PRODUCT_IMG[prod.id-1]}" style="width:36px;height:36px">
+            <div class="prod-name" style="font-size:12.5px">${o.product}</div>
+          </div>
+        </td>
+        <td>${o.buyer}</td>
+        <td><span class="status-badge ${o.status==='Selesai'?'active':o.status==='Dikirim'?'':'inactive'}" style="${o.status==='Dikirim'?'background:#EFF6FF;color:#1E40AF':''}">${o.status}</span></td>
+        <td><span class="variant-pill">${o.cicilan}</span></td>
+        <td><span class="settle-badge ${o.settle}">${o.settleText}</span></td>
+        <td style="font-size:12px;color:var(--text-muted)">${o.date}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+/* =================== SIMULATIONS =================== */
+function startSimulations(){
+  // Sinkron time update
+  let mins = 0;
+  setInterval(()=>{
+    mins++;
+    const el = document.getElementById('syncTime');
+    if(mins<1) el.textContent = 'Tersinkron baru saja';
+    else if(mins<60) el.textContent = `Tersinkron ${mins} menit lalu`;
+    else el.textContent = `Tersinkron ${Math.floor(mins/60)} jam lalu`;
+  }, 60000);
+
+  // Incoming chat
+  INCOMING_MESSAGES.forEach((msg,i)=>{
+    setTimeout(()=>{
+      showTypingFor(msg.conv);
+      setTimeout(()=>receiveMessage(msg), 2500);
+    }, msg.delay);
+  });
+
+  // Random incoming setelah batch pertama selesai
+  setTimeout(()=>{
+    setInterval(()=>{
+      const conv = CONVERSATIONS[Math.floor(Math.random()*CONVERSATIONS.length)];
+      const text = BUYER_MSGS_POOL[Math.floor(Math.random()*BUYER_MSGS_POOL.length)];
+      showTypingFor(conv.id);
+      setTimeout(()=>receiveMessage({conv:conv.id, text}), 2500);
+    }, 25000);
+  }, 40000);
+}
+
+function showTypingFor(convId){
+  if(convId!==activeConvId) return;
+  showTyping();
+}
+
+/* =================== INIT =================== */
+window.addEventListener('DOMContentLoaded',()=>{
+  renderSalesChart();
+  renderDashChat();
+  renderDashTopProd();
+  renderConvList();
+  renderMessages();
+  updateChatBadge();
+  renderProductTable();
+  renderBarChart();
+  renderTrenTop();
+  renderTags();
+  renderOrders();
+
+  // Demo hint: klik di luar panel detail menutupnya
+  document.getElementById('prodDetail').addEventListener('click',(e)=>{
+    if(e.target.id==='prodDetail') closeDetail();
+  });
+
+  // Keyboard shortcut
+  document.addEventListener('keydown',(e)=>{
+    if((e.metaKey||e.ctrlKey) && e.key==='k'){
+      e.preventDefault();
+      document.querySelector('.search-global input').focus();
+    }
+    if(e.key==='Escape') closeDetail();
+  });
+});
+</script>
+</body>
+</html>
