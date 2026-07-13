@@ -488,52 +488,27 @@
 
       <!-- VIEW: PENGATURAN -->
       <section class="view" id="view-pengaturan">
-        <div class="card">
-          <div class="placeholder-view">
-            <div class="placeholder-icon">
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            </div>
-            <h2>Pengaturan — Segera Hadir</h2>
-            <p>Modul pengaturan sedang dalam tahap perancangan. Berikut beberapa sub-modul yang akan kami tambahkan berdasarkan evaluasi mockup ini.</p>
-            <div class="placeholder-list">
-              <div class="ph-item">
-                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
-                <div class="tt">Kredensial Akulaku</div>
-                <div class="ds">Hubungkan & kelola session seller center</div>
-                <span class="soon">SOON</span>
-              </div>
-              <div class="ph-item">
-                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 5-3.5 7.5-8.5 9.5C7.5 19.5 4 17 4 12V6l8-3 8 3z"/></svg></div>
-                <div class="tt">Notifikasi & Alert</div>
-                <div class="ds">Atur notifikasi chat baru, stok menipis, settlement</div>
-                <span class="soon">SOON</span>
-              </div>
-              <div class="ph-item">
-                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-                <div class="tt">Keep-Online Engine</div>
-                <div class="ds">Konfigurasi interval refresh session & auto-reconnect</div>
-                <span class="soon">SOON</span>
-              </div>
-              <div class="ph-item">
-                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7h-9M14 17H5M20 7a3 3 0 1 0-6 0M9 17a3 3 0 1 0-6 0"/></svg></div>
-                <div class="tt">Sync Produk & Harga</div>
-                <div class="ds">Atur frekuensi sinkronisasi katalog & margin</div>
-                <span class="soon">SOON</span>
-              </div>
-              <div class="ph-item">
-                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg></div>
-                <div class="tt">Tren & Keyword Watchlist</div>
-                <div class="ds">Pantau keyword favorit & alert saat naik daun</div>
-                <span class="soon">SOON</span>
-              </div>
-              <div class="ph-item">
-                <div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7"/></svg></div>
-                <div class="tt">Integrasi & API</div>
-                <div class="ds">Webhook, export data, koneksi ke tools lain</div>
-                <span class="soon">SOON</span>
-              </div>
-            </div>
+        <div class="tren-input-card" style="margin-bottom:16px">
+          <div style="margin-bottom:10px;font-size:15px;font-weight:700">🔗 Hubungkan BigSeller</div>
+          <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;line-height:1.5">
+            Dashboard ini mengambil data Akulaku melalui BigSeller.<br>
+            <strong>Cara:</strong> Login BigSeller → F12 → Network → klik request → copy Cookie header → paste di bawah.
+          </p>
+          <div class="tren-input-row">
+            <input type="text" id="bsCookie" placeholder="Paste Cookie dari BigSeller..." style="font-size:12px;font-family:monospace">
+            <button onclick="saveBSCookie()">💾 Simpan Cookie</button>
           </div>
+          <div id="bsStatus" style="margin-top:10px;font-size:12px"></div>
+        </div>
+
+        <div class="tren-input-card">
+          <div style="font-size:14px;font-weight:700;margin-bottom:10px">📋 Coba Ambil Data</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn-ghost" onclick="fetchBS('/api/v1/shop/authShop/list.json?platform=akulaku')">Daftar Shop</button>
+            <button class="btn-ghost" onclick="fetchBS('/api/v1/product/listing/akulaku/active.json?orderBy=create_time&desc=true&searchType=productName&inquireType=0&akulakuStatus=1&bsStatus=4&pageNo=1&pageSize=50')">Produk Aktif</button>
+            <button class="btn-ghost" onclick="fetchBS('/api/v1/product/listing/akulaku/count.json?orderBy=create_time&desc=true&searchType=productName&inquireType=0&akulakuStatus=1&bsStatus=4&pageNo=1&pageSize=50')">Count</button>
+          </div>
+          <pre id="bsResult" style="margin-top:12px;background:#F9FAFB;border:1px solid var(--border);border-radius:9px;padding:14px;font-size:11px;font-family:monospace;max-height:400px;overflow:auto;white-space:pre-wrap"></pre>
         </div>
       </section>
 
