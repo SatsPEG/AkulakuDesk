@@ -6,7 +6,6 @@ export default async (req, res) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // Support passing token via query param (override), or read from DB
   const token = req.query.token;
   const shopId = req.query.shopId || 'default';
   const path = req.query.path || '/api/v1/product/listing/akulaku/active.json?orderBy=create_time&desc=true&searchType=productName&inquireType=0&akulakuStatus=1&bsStatus=4&pageNo=1&pageSize=50';
@@ -14,10 +13,10 @@ export default async (req, res) => {
 
   let cookie = token;
 
-  // If no token provided, read from DB
   if (!cookie) {
     try {
       const db = createPool();
+      await db.query(`CREATE TABLE IF NOT EXISTS bigseller_cookies (shop_id TEXT PRIMARY KEY, cookie TEXT NOT NULL, updated_at TIMESTAMP DEFAULT NOW())`);
       const { rows } = await db.query('SELECT cookie FROM bigseller_cookies WHERE shop_id=$1', [shopId]);
       if (rows.length) cookie = rows[0].cookie;
     } catch (e) {
@@ -25,7 +24,7 @@ export default async (req, res) => {
     }
   }
 
-  if (!cookie) return res.status(400).json({ error: 'No cookie. Provide ?token= or save cookie first.' });
+  if (!cookie) return res.status(400).json({ error: 'No cookie' });
 
   const base = 'https://www.bigseller.com';
 

@@ -8,6 +8,14 @@ export default async (req, res) => {
 
   try {
     const db = createPool();
+    // Create table if not exists
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS bigseller_cookies (
+        shop_id TEXT PRIMARY KEY,
+        cookie TEXT NOT NULL,
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
     await db.query(
       `INSERT INTO bigseller_cookies (shop_id, cookie, updated_at)
        VALUES ($1, $2, NOW())
@@ -17,6 +25,6 @@ export default async (req, res) => {
     res.json({ success: true, message: 'Cookie saved' });
   } catch (err) {
     console.error('save-cookie error', err);
-    res.status(500).json({ error: 'db_error' });
+    res.status(500).json({ error: 'db_error', detail: err.message });
   }
 };
