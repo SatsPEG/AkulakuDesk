@@ -1,5 +1,4 @@
-// BigSeller proxy — reads cookie from DB or query param
-import { createPool } from '@vercel/postgres';
+// BigSeller proxy — reads cookie from query param or BIGSELLER_COOKIE env var
 
 export default async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -8,18 +7,12 @@ export default async (req, res) => {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const token = req.query.token;
-  const shopId = req.query.shopId || 'default';
   const path = req.query.path || '/api/v1/product/listing/akulaku/active.json?orderBy=create_time&desc=true&searchType=productName&inquireType=0&akulakuStatus=1&bsStatus=4&pageNo=1&pageSize=50';
   const body = req.method === 'POST' ? req.body : undefined;
 
   let cookie = token;
-
-  // If no token param, try reading from env var (fallback for demo)
-  if (!cookie) {
-    cookie = process.env.BIGSELLER_COOKIE;
-  }
-
-  if (!cookie) return res.status(400).json({ error: 'No cookie. Provide ?token= or set BIGSELLER_COOKIE env var.' });
+  if (!cookie) cookie = process.env.BIGSELLER_COOKIE;
+  if (!cookie) return res.status(400).json({ error: 'No cookie' });
 
   const base = 'https://www.bigseller.com';
 
