@@ -1,19 +1,61 @@
 /* =================== LOGIN =================== */
 function doLogin(){
+  localStorage.setItem('loggedIn', 'true');
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('app').classList.add('show');
-  showToast('Berhasil masuk sebagai Demo', 'success');
-  startSimulations();
+  showBridgeStatus();
+  // Listen for bridge data
+  startBridgeListener();
+  // Auto-load data if extension already sending
+  loadDashboard();
+  // Poll connection status
+  setInterval(checkBridgeConnection, 5000);
+}
+
+function showBridgeStatus() {
+  const status = document.getElementById('bridgeConnStatus');
+  if (status) {
+    status.innerHTML = `
+      <div class="bridge-pending">
+        <div class="bridge-icon">🔌</div>
+        <div class="bridge-text">
+          <strong>Menunggu Extension...</strong>
+          <span>Pastikan Chrome Extension AkulakuDesk Bridge sudah aktif & kamu sudah membuka Akulaku Seller Centre di tab lain.</span>
+        </div>
+      </div>
+    `;
+  }
+}
+
+let bridgeConnected = false;
+let bridgeDataCount = 0;
+
+function checkBridgeConnection() {
+  const el = document.getElementById('syncTime');
+  if (bridgeConnected) return;
+  // Try fetching bridge status via local flag
+  if (!bridgeConnected && document.getElementById('statProduk')?.textContent !== '—') {
+    bridgeConnected = true;
+    document.getElementById('bridgeConnStatus').innerHTML = `
+      <div class="bridge-ok">
+        <div class="bridge-icon">✅</div>
+        <div class="bridge-text">
+          <strong>Extension Aktif — Data Mengalir</strong>
+          <span>Dashboard otomatis terupdate saat kamu browsing di Akulaku Seller Centre.</span>
+        </div>
+      </div>
+    `;
+  }
 }
 
 /* =================== NAVIGATION =================== */
 const VIEW_META = {
-  dashboard:{title:'Dashboard', crumb:'Ringkasan aktivitas toko kamu hari ini'},
-  chat:{title:'Chat (Live)', crumb:'Pantau percakapan buyer — tanpa mengirim balasan'},
-  produk:{title:'Produk', crumb:'Kelola katalog & performa produk'},
-  tren:{title:'Tren Kata Kunci', crumb:'Analisis pencarian & momentum pasar'},
-  order:{title:'Order & Settlement', crumb:'Status order dan pencairan BNPL'},
-  pengaturan:{title:'Pengaturan', crumb:'Konfigurasi aplikasi & integrasi'},
+  dashboard:{title:'Dashboard', crumb:'Ringkasan toko dari data Akulaku langsung'},
+  chat:{title:'Chat (Live)', crumb:'Percakapan buyer — buka livechat.akulaku.com untuk data real'},
+  produk:{title:'Produk', crumb:'Katalog produk real dari Seller Centre'},
+  tren:{title:'Analisis Produk', crumb:'Distribusi harga dari katalog real'},
+  order:{title:'Order & Settlement', crumb:'Status order & pencairan dari Seller Centre'},
+  pengaturan:{title:'Pengaturan', crumb:'Konfigurasi Chrome Extension & koneksi'},
 };
 
 function navTo(view){
@@ -48,44 +90,15 @@ function showToast(text, type='default', title=null){
 }
 
 /* =================== DASHBOARD =================== */
-let AKULAKU_COOKIE = ''; // akan diisi dari halaman pengaturan
+let AKULAKU_COOKIE = '';
 
 async function loadDashboard(){
-  try {
-    // Skip if no cookie set yet
-    const statsResp = await fetchAkulaku('/bapi/vendor/desk/statistics', {shopId:'3473862849057816580'});
-    if (statsResp && statsResp.success) {
-      const todo = statsResp.data?.toDoList || {};
-      document.getElementById('statChat').textContent = todo.refundingCount || '0';
-      document.getElementById('statSales').textContent = todo.waitDeliverCount !== undefined ? `Deliver: ${todo.waitDeliverCount}` : '—';
-      document.getElementById('statSettlement').textContent = todo.waitPayCount !== undefined ? `Pending: ${todo.waitPayCount}` : '—';
-    }
-
-    const prodResp = await fetchAkulaku('/bapi/vendor-goods-biz/goods/shop/quota/query');
-    if (prodResp && prodResp.success) {
-      document.getElementById('statProduk').textContent = prodResp.data?.currGoodsQuota || '—';
-    }
-
-    // Real product list
-    const listResp = await fetchAkulaku('/bapi/vendor-goods-biz/goods/list', {current:1, pageSize:10, filterStatus:'0', saleDesc:'-1'});
-    if (listResp && listResp.success && listResp.data?.records) {
-      const items = listResp.data.records;
-      renderTopProducts(items.slice(0, 5));
-      renderSalesChart(items.slice(0,14));
-    }
-
-    // Real order list
-    const orderResp = await fetchAkulaku('/bapi/vendor-orders-biz/order/queryOrders', {pageNo:1, pageSize:5});
-    if (orderResp && orderResp.success && orderResp.data?.records) {
-      renderRealOrders(orderResp.data.records);
-    }
-
-  } catch(e){
-    console.error('Dashboard load error', e);
-  }
+  // Hanya jalan kalo ada data dari bridge
+  // Data diisi oleh handleBridgeData()
 }
 
 function renderTopProducts(items){
+  if (!items || !items.length) return;
   const list = document.getElementById('dashTopProd');
   list.innerHTML = items.map((p,i) => `
     <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-soft)">
@@ -96,11 +109,11 @@ function renderTopProducts(items){
         <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Rp ${(p.minPrice||0).toLocaleString('id-ID')} · ${p.qty||0} terjual</div>
       </div>
     </div>
-  `).join('') || '<div style="padding:20px;text-align:center;color:var(--text-muted)">Belum ada produk</div>';
+  `).join('');
 }
 
 function renderRealOrders(orders){
-  // Update dashboard order summary
+  if (!orders || !orders.length) return;
   let totalPending = 0, totalCair = 0, pendingCount = 0;
   orders.forEach(o => {
     const amount = o.orderItems?.[0]?.orderItemAmount || 0;
@@ -112,10 +125,9 @@ function renderRealOrders(orders){
     }
   });
   document.querySelector('#view-order .sum-card.pending .val').textContent = `Rp ${totalPending.toLocaleString('id-ID')}`;
-  document.querySelector('#view-order .sum-card.pending .meta').textContent = `${pendingCount} order · realtime`; 
+  document.querySelector('#view-order .sum-card.pending .meta').textContent = `${pendingCount} order · dari Akulaku`; 
   document.querySelector('#view-order .sum-card.cair .val').textContent = `Rp ${totalCair.toLocaleString('id-ID')}`;
 
-  // Render order table
   const tbody = document.getElementById('orderTbody');
   tbody.innerHTML = orders.map(o => {
     const item = o.orderItems?.[0] || {};
@@ -138,107 +150,57 @@ function renderRealOrders(orders){
   }).join('');
 }
 
-async function fetchAkulaku(endpoint, body = null) {
-  try {
-    let url = '/api/akulaku/proxy?endpoint=' + encodeURIComponent(endpoint);
-    if (AKULAKU_COOKIE) url += '&token=' + encodeURIComponent(AKULAKU_COOKIE);
-    const opts = { method: 'POST', headers: {'Content-Type':'application/json'} };
-    if (body) opts.body = JSON.stringify(body);
-    const resp = await fetch(url, opts);
-    const text = await resp.text();
-    try { return JSON.parse(text); } catch(e) { return null; }
-  } catch(e) {
-    console.error('fetchAkulaku error', endpoint, e);
-    return null;
+/* =================== PRODUK =================== */
+async function renderProductTable(){
+  // Hanya render kalo ada data — fired by handleBridgeData
+  const tbody = document.getElementById('prodTbody');
+  // Keep showing "Menunggu data" if no products
+  if (!window.__akulakuProducts || !window.__akulakuProducts.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:60px 20px;color:var(--text-muted)"><div style="font-size:28px;margin-bottom:10px">🔌</div><div style="font-weight:600;font-size:15px;margin-bottom:4px">Menunggu data dari Extension</div><div style="font-size:12px">Buka Akulaku Seller Centre & klik menu Produk — data akan muncul otomatis</div></td></tr>';
+    return;
   }
+  // ... render dari window.__akulakuProducts
 }
 
-function saveAkulakuCookie(){
-  const el = document.getElementById('akCookie');
-  const status = document.getElementById('akStatus');
-  const cookie = el.value.trim();
-  if(!cookie) return status.innerHTML = '<span style="color:var(--danger)">⚠️ Cookie kosong</span>';
-  AKULAKU_COOKIE = cookie;
-  status.innerHTML = '<span style="color:var(--success)">✅ Cookie tersimpan. Data real!</span>';
-  loadDashboard();
+function syncProducts(){
+  const now = new Date();
+  const t = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  document.getElementById('prodSync').textContent = t;
+  showToast('Data produk dari Akulaku Seller Centre','success','Bridge');
 }
 
-function testAkulaku(endpoint, bodyStr = '{}'){
-  const pre = document.getElementById('akResult');
-  const status = document.getElementById('akStatus');
-  pre.textContent = '⏳ Loading...';
-  try {
-    const body = JSON.parse(bodyStr);
-    fetchAkulaku(endpoint, body).then(d => {
-      pre.textContent = JSON.stringify(d, null, 2);
-    });
-  } catch(e) {
-    pre.textContent = 'Error: ' + e.message;
+/* =================== TREN =================== */
+function renderBarChart(){
+  // No data yet
+}
+
+function renderTrenTop(){
+  // No data yet
+}
+
+function renderTags(){
+  // No-op
+}
+
+/* =================== ORDER =================== */
+async function renderOrders(){
+  // Orders data from bridge only
+  const tbody = document.getElementById('orderTbody');
+  if (!window.__akulakuOrders) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:60px 20px;color:var(--text-muted)"><div style="font-size:28px;margin-bottom:10px">🔌</div><div style="font-weight:600;font-size:15px;margin-bottom:4px">Menunggu data dari Extension</div><div style="font-size:12px">Buka menu Order di Akulaku Seller Centre — data akan muncul otomatis</div></td></tr>';
   }
-}
-
-function renderSalesChart(items){
-  const svg = document.getElementById('salesChart');
-  const W=700, H=240, P=30;
-  const count = Math.min(items.length || 14, 14);
-  const vals = items.length ? items.map(p => Math.max((p.price||0)/10000, 1)) : [2.1,2.4,1.8,3.2,2.8,3.5,4.1,3.8,4.5,3.9,4.2,5.1,4.8,4.8];
-  const maxVal = Math.max(...vals, 6);
-  let path='', area='';
-  vals.slice(0,14).forEach((v,i)=>{
-    const x = P + (i*(W-P*2))/(13);
-    const y = H-P - (v/maxVal)*(H-P*2);
-    path += (i===0?'M':'L')+x+','+y+' ';
-    if(i===0) area = 'M'+x+','+(H-P);
-    area += ' L'+x+','+y;
-    if(i===vals.length-1 || i===13) area += ' L'+x+','+(H-P)+' Z';
-  });
-  let grid='';
-  for(let i=0;i<=4;i++){
-    const y = P + i*(H-P*2)/4;
-    grid += `<line x1="${P}" y1="${y}" x2="${W-P}" y2="${y}" stroke="#F0F1F4" stroke-width="1"/>`;
-    grid += `<text x="${P-8}" y="${y+4}" text-anchor="end" font-size="10" fill="#8B92A5">${(maxVal - i*(maxVal/4)).toFixed(1)}</text>`;
-  }
-  let xLabels='';
-  for(let i=0;i<14;i+=2){
-    const x = P + (i*(W-P*2))/13;
-    xLabels += `<text x="${x}" y="${H-P+18}" text-anchor="middle" font-size="10" fill="#8B92A5">${14-i}h</text>`;
-  }
-  svg.innerHTML = `
-    ${grid}
-    <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FF3D57" stop-opacity="0.25"/><stop offset="100%" stop-color="#FF3D57" stop-opacity="0"/></linearGradient></defs>
-    <path d="${area}" fill="url(#g)"/>
-    <path d="${path}" fill="none" stroke="#FF3D57" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    ${xLabels}
-  `;
-}
-
-function renderDashChat(){
-  // Chat dari BigSeller belum tersedia — fallback mock
-  const list = document.getElementById('dashChatList');
-  list.innerHTML = CONVERSATIONS.slice(0,4).map(c=>`
-    <div style="display:flex;gap:11px;padding:10px 12px;border-radius:9px;cursor:pointer;transition:.15s" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background='transparent'" onclick="navTo('chat')">
-      <div class="conv-avatar" style="background:${c.color};width:36px;height:36px;font-size:12px">${c.initial}${c.online?'<div class="online"></div>':''}</div>
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div style="font-size:13px;font-weight:600">${c.name}</div>
-          <div style="font-size:10px;color:var(--text-muted)">${c.time}</div>
-        </div>
-        <div style="font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px">${c.last}</div>
-      </div>
-      ${c.unread?`<div class="conv-badge" style="align-self:center">${c.unread}</div>`:''}
-    </div>
-  `).join('');
-}
-
-function renderDashTopProd(){
-  // Replaced by loadDashboard() — no-op
 }
 
 /* =================== CHAT =================== */
 let activeConvId = 1;
+
 function renderConvList(){
   const list = document.getElementById('convList');
-  list.innerHTML = CONVERSATIONS.map(c=>`
+  if (!window.__akulakuChats || !window.__akulakuChats.length) {
+    list.innerHTML = '<div style="padding:40px 20px;text-align:center;color:var(--text-muted);font-size:12px">🔌 Buka Live Chat di Akulaku Seller Centre untuk melihat percakapan</div>';
+    return;
+  }
+  list.innerHTML = window.__akulakuChats.map(c=>`
     <div class="conv ${c.id===activeConvId?'active':''}" onclick="openConv(${c.id})">
       <div class="conv-avatar" style="background:${c.color}">${c.initial}${c.online?'<div class="online"></div>':''}</div>
       <div class="conv-body">
@@ -257,32 +219,27 @@ function renderConvList(){
 }
 
 function openConv(id){
+  if (!window.__akulakuChats) return;
   activeConvId = id;
-  const c = CONVERSATIONS.find(x=>x.id===id);
+  const c = window.__akulakuChats.find(x=>x.id===id);
   if(!c) return;
   c.unread = 0;
-  document.getElementById('threadAvatar').textContent = c.initial;
-  document.getElementById('threadAvatar').style.background = c.color;
-  document.getElementById('threadName').innerHTML = c.name + ' <span style="font-size:11px;font-weight:500;color:var(--text-muted)">· Buyer</span>';
-  document.querySelector('.thread-buyer .meta').innerHTML = `
-    <span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ${c.city}</span>
-    <span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7"/></svg> Order: ${c.order}</span>
-    <span style="color:${c.online?'var(--success)':'var(--text-muted)'};font-weight:600">● ${c.online?'Online':'Offline'}</span>
-  `;
   renderConvList();
-  renderMessages();
   updateChatBadge();
+  if(c.messages) renderMessages(c);
 }
 
-function renderMessages(){
-  const c = CONVERSATIONS.find(x=>x.id===activeConvId);
-  if(!c) return;
+function renderMessages(conv){
   const box = document.getElementById('threadMessages');
-  box.innerHTML = `<div class="msg-day"><span>Hari ini</span></div>` + c.messages.map(m=>{
+  if (!conv || !conv.messages) {
+    box.innerHTML = '<div style="padding:60px 20px;text-align:center;color:var(--text-muted);font-size:12px">💬 Buka Live Chat untuk lihat percakapan</div>';
+    return;
+  }
+  box.innerHTML = `<div class="msg-day"><span>Hari ini</span></div>` + conv.messages.map(m=>{
     const isBuyer = m.from==='buyer';
     return `
       <div class="msg ${isBuyer?'buyer':'seller'}">
-        ${isBuyer?`<div class="msg-avatar" style="background:${c.color}">${c.initial}</div>`:''}
+        ${isBuyer?`<div class="msg-avatar" style="background:${conv.color}">${conv.initial}</div>`:''}
         <div>
           <div class="msg-bubble">${m.text}</div>
           <div class="msg-time">${m.time}</div>
@@ -294,241 +251,56 @@ function renderMessages(){
 }
 
 function markRead(){
-  const c = CONVERSATIONS.find(x=>x.id===activeConvId);
-  c.unread = 0;
-  renderConvList();
-  updateChatBadge();
-  showToast('Percakapan ditandai dibaca. Balasan via app Akulaku.','success','Tandai Dibaca');
+  showToast('Balasan via app Akulaku Seller Centre','success','Chat');
 }
 
 function updateChatBadge(){
-  const total = CONVERSATIONS.reduce((a,c)=>a+c.unread,0);
   const badge = document.getElementById('chatBadge');
-  if(total>0){
+  const unread = window.__akulakuUnread || 0;
+  if(unread>0){
     badge.style.display='inline-block';
-    badge.textContent = total;
+    badge.textContent = unread;
   } else {
     badge.style.display='none';
   }
 }
 
-function showTyping(){
-  const box = document.getElementById('threadMessages');
-  if(document.querySelector('.typing-indicator')) return;
-  const c = CONVERSATIONS.find(x=>x.id===activeConvId);
-  if(!c || !c.online) return;
-  const t = document.createElement('div');
-  t.className='typing-indicator';
-  t.innerHTML='<span></span><span></span><span></span>';
-  box.appendChild(t);
-  box.scrollTop = box.scrollHeight;
-  setTimeout(()=>{
-    t.remove();
-  }, 2500);
-}
-
-function receiveMessage(msg){
-  const c = CONVERSATIONS.find(x=>x.id===msg.conv);
-  if(!c) return;
-  const now = new Date();
-  const time = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
-  c.messages.push({from:'buyer', text:msg.text, time});
-  c.last = msg.text;
-  c.time = time;
-  if(c.id!==activeConvId) c.unread = (c.unread||0)+1;
-  renderConvList();
-  if(c.id===activeConvId) renderMessages();
-  updateChatBadge();
-  showToast(`Pesan baru dari ${c.name}: "${msg.text.substring(0,40)}${msg.text.length>40?'...':''}"`, 'default', 'Chat Masuk');
-}
-
-/* =================== PRODUK =================== */
-async function renderProductTable(){
-  const q = document.getElementById('prodSearch').value.toLowerCase();
-  const status = document.getElementById('prodStatusFilter').value;
-  const sort = document.getElementById('prodSort').value;
-
-  let products = [];
-  const resp = await fetchAkulaku('/bapi/vendor-goods-biz/goods/list', {current:1, pageSize:50, filterStatus:'0', saleDesc:'-1'});
-  if (resp && resp.success && resp.data?.records) {
-    products = resp.data.records;
-  } else {
-    // fallback to mock
-    products = PRODUCTS;
+function renderDashChat(){
+  const list = document.getElementById('dashChatList');
+  if (!window.__akulakuChats || !window.__akulakuChats.length) {
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:12px">🔌 Buka Live Chat di Akulaku</div>';
+    return;
   }
-
-  let list = products.filter(p=>{
-    if(q && !(p.spuName||p.name||'').toLowerCase().includes(q)) return false;
-    return true;
-  });
-  list.sort((a,b)=>{
-    if(sort==='sold') return (b.sold||0)-(a.sold||0);
-    if(sort==='price') return (b.maxPrice||b.price||0)-(a.maxPrice||a.price||0);
-    if(sort==='stock') return (b.qty||b.stock||0)-(a.qty||a.stock||0);
-    return 0;
-  });
-  const tbody = document.getElementById('prodTbody');
-  tbody.innerHTML = list.map((p,i)=>{
-    const name = p.spuName || p.name || '—';
-    const price = p.minPrice || p.price || 0;
-    const stock = p.qty || p.stock || 0;
-    const img = p.indexImage || PRODUCT_IMG[i % PRODUCT_IMG.length];
-    const sold = p.sold || 0;
-    const statusLabel = p.disabled === 0 ? 'Aktif' : 'Nonaktif';
-    return `
-      <tr>
-        <td style="color:var(--text-muted);font-weight:600">${i+1}</td>
-        <td>
-          <div class="prod-cell">
-            <img class="prod-thumb" src="${img}" onerror="this.src='${PRODUCT_IMG[i % PRODUCT_IMG.length]}'">
-            <div class="prod-name">${name}</div>
-          </div>
-        </td>
-        <td><span class="variant-pill">—</span></td>
-        <td><span class="price">Rp ${price.toLocaleString('id-ID')}</span></td>
-        <td><span class="stock ${stock===0?'out':stock<20?'low':''}">${stock===0?'Habis':stock}</span></td>
-        <td><span class="status-badge ${statusLabel==='Aktif'?'active':'inactive'}">${statusLabel}</span></td>
-        <td><span style="font-size:11px;color:var(--text-muted);font-weight:600">${sold}</span></td>
-        <td style="font-weight:700">${sold}</td>
-        <td>
-          <div class="row-actions" onclick="event.stopPropagation()">
-            <button class="row-btn" title="Lihat"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join('') || `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted)">Tidak ada produk yang cocok</td></tr>`;
-}
-
-function syncProducts(){
-  const now = new Date();
-  const t = now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
-  document.getElementById('prodSync').textContent = t;
-  showToast('Katalog produk disinkronkan dengan Akulaku Seller Center','success','Sinkron Berhasil');
-}
-
-/* =================== TREN =================== */
-function renderBarChart(){
-  // Based on real product price distribution
-  const list = document.getElementById('dashTopProd');
-  if (!list || !list.children.length) return;
-  const prices = Array.from(list.children).map(el => {
-    const txt = el.textContent || '';
-    const match = txt.match(/Rp\s*([\d.]+)/);
-    return match ? parseInt(match[1].replace(/\./g,'')) : 0;
-  });
-  const max = Math.max(...prices, 1);
-  const labels = ['Termurah', 'Murah', 'Medium', 'Mahal', 'Termahal'];
-  const buckets = [0,0,0,0,0];
-  prices.forEach(p => {
-    const idx = Math.min(4, Math.floor((p/max)*5));
-    buckets[idx]++;
-  });
-  const chart = document.getElementById('barChart');
-  if (chart) {
-    const barMax = Math.max(...buckets, 1);
-    chart.innerHTML = buckets.map((v,i) => {
-      const h = (v/barMax)*100;
-      return `
-        <div class="bar-col">
-          <div class="bar" style="height:${Math.max(h,5)}%;background:linear-gradient(180deg,#FF3D57,#FFA940)">
-            <div class="bar-val">${v}</div>
-          </div>
-          <div class="bar-label">${labels[i]}</div>
+  list.innerHTML = window.__akulakuChats.slice(0,4).map(c=>`
+    <div style="display:flex;gap:11px;padding:10px 12px;border-radius:9px;cursor:pointer" onclick="navTo('chat')">
+      <div class="conv-avatar" style="background:${c.color};width:36px;height:36px;font-size:12px">${c.initial}${c.online?'<div class="online"></div>':''}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:13px;font-weight:600">${c.name}</div>
+          <div style="font-size:10px;color:var(--text-muted)">${c.time}</div>
         </div>
-      `;
-    }).join('');
-  }
+        <div style="font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px">${c.last}</div>
+      </div>
+      ${c.unread?`<div class="conv-badge" style="align-self:center">${c.unread}</div>`:''}
+    </div>
+  `).join('');
 }
 
-function renderTrenTop(){
-  // Reuse top products from dashTopProd
-  const list = document.getElementById('trenTopList');
-  const src = document.getElementById('dashTopProd');
-  if (list && src) list.innerHTML = src.innerHTML;
-}
-
-function renderTags(){
-  // No-op — fitur ini gak relevan, data real from bridge
-}
-
-/* =================== ORDER =================== */
-async function renderOrders(){
-  const resp = await fetchAkulaku('/bapi/vendor-orders-biz/order/queryOrders', {pageNo:1, pageSize:10});
-  if (resp && resp.success && resp.data?.records) {
-    renderRealOrders(resp.data.records);
-  } else {
-    // fallback mock
-    const tbody = document.getElementById('orderTbody');
-    tbody.innerHTML = ORDERS.map(o=>{
-      const prod = PRODUCTS.find(p=>p.name.includes(o.product.split(' ')[0])) || PRODUCTS[0];
-      return `
-        <tr>
-          <td><span style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;color:var(--primary)">${o.id}</span></td>
-          <td><div class="prod-cell"><img class="prod-thumb" src="${PRODUCT_IMG[prod.id-1]}" style="width:36px;height:36px"><div class="prod-name" style="font-size:12.5px">${o.product}</div></div></td>
-          <td>${o.buyer}</td>
-          <td><span class="status-badge ${o.status==='Selesai'?'active':o.status==='Dikirim'?'':'inactive'}" style="${o.status==='Dikirim'?'background:#EFF6FF;color:#1E40AF':''}">${o.status}</span></td>
-          <td><span class="variant-pill">${o.cicilan}</span></td>
-          <td><span class="settle-badge ${o.settle}">${o.settleText}</span></td>
-          <td style="font-size:12px;color:var(--text-muted)">${o.date}</td>
-        </tr>
-      `;
-    }).join('');
-  }
-}
-
-/* =================== SIMULATIONS =================== */
-function startSimulations(){
-  // Sinkron time update
-  let mins = 0;
-  setInterval(()=>{
-    mins++;
-    const el = document.getElementById('syncTime');
-    if(mins<1) el.textContent = 'Tersinkron baru saja';
-    else if(mins<60) el.textContent = `Tersinkron ${mins} menit lalu`;
-    else el.textContent = `Tersinkron ${Math.floor(mins/60)} jam lalu`;
-  }, 60000);
-
-  // Incoming chat
-  INCOMING_MESSAGES.forEach((msg,i)=>{
-    setTimeout(()=>{
-      showTypingFor(msg.conv);
-      setTimeout(()=>receiveMessage(msg), 2500);
-    }, msg.delay);
-  });
-
-  // Random incoming setelah batch pertama selesai
-  setTimeout(()=>{
-    setInterval(()=>{
-      const conv = CONVERSATIONS[Math.floor(Math.random()*CONVERSATIONS.length)];
-      const text = BUYER_MSGS_POOL[Math.floor(Math.random()*BUYER_MSGS_POOL.length)];
-      showTypingFor(conv.id);
-      setTimeout(()=>receiveMessage({conv:conv.id, text}), 2500);
-    }, 25000);
-  }, 40000);
-}
-
-function showTypingFor(convId){
-  if(convId!==activeConvId) return;
-  showTyping();
+function renderDashTopProd(){
+  // No-op — rendered by loadDashboard
 }
 
 /* =================== INIT =================== */
 window.addEventListener('DOMContentLoaded',()=>{
+  // Render empty states
   renderDashChat();
   renderConvList();
-  renderMessages();
   updateChatBadge();
   renderProductTable();
   renderBarChart();
   renderTrenTop();
   renderTags();
   renderOrders();
-  // Load Akulaku data async
-  loadDashboard();
-
-  // Start Bridge listener (Chrome Extension)
-  startBridgeListener();
 
   // Demo hint: klik di luar panel detail menutupnya
   document.getElementById('prodDetail').addEventListener('click',(e)=>{
@@ -547,24 +319,20 @@ window.addEventListener('DOMContentLoaded',()=>{
 
 /* =================== CHROME BRIDGE =================== */
 function startBridgeListener() {
-  // postMessage dari content_script_vercel.js
   window.addEventListener('message', (e) => {
     if (e.source !== window) return;
     if (e.data?.source !== 'akulaku-bridge' || e.data?.type !== 'BRIDGE_DATA') return;
     handleBridgeData(e.data.payload);
   });
 
-  // CustomEvent dari content_script_vercel.js
   window.addEventListener('akulaku-bridge-data', (e) => {
     handleBridgeData(e.detail);
   });
 
-  // Global callback
   window.__onAkulakuBridgeData = (payload) => {
     handleBridgeData(payload);
   };
 
-  // Remote Config sender (dashboard → extension)
   window.__bridgeSendConfig = (patterns) => {
     window.postMessage({
       source: 'akulaku-dashboard',
@@ -579,48 +347,70 @@ function handleBridgeData(payload) {
   if (!payload || !payload.data) return;
   const data = payload.data;
   const endpoint = payload.endpoint || '';
-
   if (!data.success) return;
 
-  // Update status di topbar
-  const syncEl = document.getElementById('syncTime');
-  syncEl.textContent = `Live: ${new Date(payload.timestamp).toLocaleTimeString('id-ID')}`;
+  bridgeConnected = true;
+  bridgeDataCount++;
 
-  // Handle berdasarkan endpoint
+  // Update connection status
+  document.getElementById('bridgeConnStatus').innerHTML = `
+    <div class="bridge-ok">
+      <div class="bridge-icon">✅</div>
+      <div class="bridge-text">
+        <strong>Connected — Live Data</strong>
+        <span>${bridgeDataCount} data packet diterima sejak dashboard dibuka.</span>
+      </div>
+    </div>
+  `;
+
+  const syncEl = document.getElementById('syncTime');
+  syncEl.textContent = `Live @ ${new Date(payload.timestamp).toLocaleTimeString('id-ID')}`;
+
+  // Products
   if (endpoint.includes('goods/list') || endpoint.includes('goods/statistics')) {
     document.getElementById('statProduk').textContent = data.data?.currGoodsQuota || data.data?.enable || '—';
-    if (data.data?.records) renderTopProducts(data.data.records.slice(0, 5));
+    if (data.data?.records) {
+      window.__akulakuProducts = data.data.records;
+      renderTopProducts(data.data.records.slice(0, 5));
+    }
   }
 
+  // Dashboard stats
   if (endpoint.includes('desk/statistics')) {
     const todo = data.data?.toDoList || {};
     document.getElementById('statChat').textContent = todo.refundingCount || '0';
-    document.getElementById('statSales').textContent = todo.waitDeliverCount !== undefined ? `Deliver: ${todo.waitDeliverCount}` : '—';
-    document.getElementById('statSettlement').textContent = todo.waitPayCount !== undefined ? `Pending: ${todo.waitPayCount}` : '—';
+    document.getElementById('statSales').textContent = todo.waitDeliverCount !== undefined ? `${todo.waitDeliverCount} pesanan` : '—';
+    document.getElementById('statSettlement').textContent = todo.waitPayCount !== undefined ? `${todo.waitPayCount} pending` : '—';
   }
 
+  // Orders
   if (endpoint.includes('queryOrders')) {
-    if (data.data?.records) renderRealOrders(data.data.records);
+    if (data.data?.records) {
+      window.__akulakuOrders = data.data.records;
+      renderRealOrders(data.data.records);
+    }
   }
 
   // Chat unread
   if (endpoint.includes('vendorTotalUnreadNumByAccount')) {
-    const count = data.data || '0';
-    const badge = document.getElementById('chatBadge');
-    if (parseInt(count) > 0) {
-      badge.textContent = count;
-      badge.style.display = 'inline-block';
-    } else {
-      badge.style.display = 'none';
-    }
-    document.getElementById('statChat').textContent = count.toString();
+    window.__akulakuUnread = parseInt(data.data) || 0;
+    updateChatBadge();
+    document.getElementById('statChat').textContent = (data.data || '0').toString();
   }
 
-  // Settlement
-  if (endpoint.includes('settlementType') || endpoint.includes('refundOrder')) {
-    document.querySelector('#view-order .sum-card.pending .val').textContent = 'Rp —';
-    document.querySelector('#view-order .sum-card.pending .meta').textContent = 'Data settlement real-time';
+  // Chat messages (dari livechat)
+  if (endpoint.includes('chat') || endpoint.includes('message') || endpoint.includes('conversation')) {
+    if (data.data && Array.isArray(data.data)) {
+      window.__akulakuChats = data.data;
+      renderConvList();
+      renderDashChat();
+    }
   }
 
   showToast(`📡 ${endpoint.split('/').pop()}`, 'success', 'Bridge');
+}
+
+/* =================== PENGATURAN =================== */
+function saveAkulakuCookie(){
+  showToast('Extension Bridge lebih praktis! Install Chrome Extension dari repo.','info','Cookie');
 }
