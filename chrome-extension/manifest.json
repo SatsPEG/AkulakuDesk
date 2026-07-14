@@ -14,6 +14,7 @@
 
   "host_permissions": [
     "https://ec-vendor.akulaku.com/*",
+    "https://livechat.akulaku.com/*",
     "https://akulaku-desk-six.vercel.app/*"
   ],
 
@@ -36,6 +37,11 @@
     {
       "matches": ["https://ec-vendor.akulaku.com/*"],
       "js": ["content_script_akulaku.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://livechat.akulaku.com/*"],
+      "js": ["content_script_livechat.js"],
       "run_at": "document_idle"
     },
     {

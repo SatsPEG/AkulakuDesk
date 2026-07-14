@@ -382,21 +382,9 @@
       <!-- VIEW: TREN -->
       <section class="view" id="view-tren">
         <div class="tren-input-card">
-          <div style="margin-bottom:10px;font-size:13px;font-weight:600">Analisis Kata Kunci</div>
-          <div class="tren-input-row">
-            <input type="text" id="trenInput" value="tumbler termal" placeholder="Masukkan kata kunci (cth: tumbler termal)">
-            <select id="trenCat">
-              <option> Semua Kategori</option>
-              <option>Elektronik</option>
-              <option>Fashion</option>
-              <option>Rumah Tangga</option>
-              <option>Kecantikan</option>
-              <option>Otomotif</option>
-            </select>
-            <button onclick="analyzeKeyword()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              Analisis
-            </button>
+          <div style="margin-bottom:10px;font-size:13px;font-weight:600">Analisis Produk</div>
+          <div style="font-size:12px;color:var(--text-muted);line-height:1.5;padding:8px 0">
+            Data performa produk & rekomendasi tersedia saat Akulaku Seller Centre terbuka via Extension Bridge.
           </div>
         </div>
 
@@ -404,12 +392,8 @@
           <div class="card bar-chart">
             <div style="display:flex;justify-content:space-between;align-items:center">
               <div>
-                <h3 style="font-size:14px;font-weight:700">Volume Pencarian 7 Hari</h3>
-                <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Kata kunci: <strong id="trenKeyword" style="color:var(--text)">tumbler termal</strong></div>
-              </div>
-              <div style="text-align:right">
-                <div style="font-size:11px;color:var(--text-muted)">Total pencarian</div>
-                <div style="font-size:18px;font-weight:800;color:var(--primary)">42.8K</div>
+                <h3 style="font-size:14px;font-weight:700">Distribusi Harga Produk</h3>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Berdasarkan katalog real</div>
               </div>
             </div>
             <div class="bar-chart-area" id="barChart"></div>
@@ -418,18 +402,10 @@
           <div class="card tren-top">
             <div style="padding:4px 4px 12px;display:flex;justify-content:space-between;align-items:center">
               <h3 style="font-size:14px;font-weight:700">Top Produk</h3>
-              <span style="font-size:11px;color:var(--text-muted)">untuk keyword ini</span>
+              <span style="font-size:11px;color:var(--text-muted)">dari katalog real</span>
             </div>
             <div id="trenTopList"></div>
           </div>
-        </div>
-
-        <div class="tags-card">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <h3 style="font-size:14px;font-weight:700">Rekomendasi Kata Kunci Terkait</h3>
-            <span style="font-size:11px;color:var(--text-muted)">Klik untuk analisis</span>
-          </div>
-          <div class="tags-list" id="tagsList"></div>
         </div>
       </section>
 

@@ -23,6 +23,11 @@
     '/bapi/vendor-goods-biz/goods/shop/quota/query',
     '/bapi/vendor-orders-biz/order/countVendorOrder',
     '/bapi/vendor/shop/getShopInfo',
+    '/bapi/vendor/chat/message/vendorTotalUnreadNumByAccount',
+    '/bapi/vendor-asset-biz/shop/fund/settlementType',
+    '/bapi/vendor-orders-biz/refundOrder/countProcessRefundOrder',
+    '/bapi/vendor-orders-biz/refundOrder/queryRefundOrderPageList',
+    '/bapi/vendor-goods-biz/goods/tiny-sku/list',
   ];
 
   // Bisa di-update dari luar via pesan

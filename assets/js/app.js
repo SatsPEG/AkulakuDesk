@@ -409,59 +409,47 @@ function syncProducts(){
 
 /* =================== TREN =================== */
 function renderBarChart(){
-  const data = [3200,4100,3800,5200,6100,7400,6800];
-  const max = Math.max(...data);
-  const labels = ['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+  // Based on real product price distribution
+  const list = document.getElementById('dashTopProd');
+  if (!list || !list.children.length) return;
+  const prices = Array.from(list.children).map(el => {
+    const txt = el.textContent || '';
+    const match = txt.match(/Rp\s*([\d.]+)/);
+    return match ? parseInt(match[1].replace(/\./g,'')) : 0;
+  });
+  const max = Math.max(...prices, 1);
+  const labels = ['Termurah', 'Murah', 'Medium', 'Mahal', 'Termahal'];
+  const buckets = [0,0,0,0,0];
+  prices.forEach(p => {
+    const idx = Math.min(4, Math.floor((p/max)*5));
+    buckets[idx]++;
+  });
   const chart = document.getElementById('barChart');
-  chart.innerHTML = data.map((v,i)=>{
-    const h = (v/max)*100;
-    return `
-      <div class="bar-col">
-        <div class="bar" style="height:${h}%;background:linear-gradient(180deg,${i===5?'#FF3D57':'#FF8C9F'},${i===5?'#E2234B':'#FFA940'})">
-          <div class="bar-val">${(v/1000).toFixed(1)}K</div>
+  if (chart) {
+    const barMax = Math.max(...buckets, 1);
+    chart.innerHTML = buckets.map((v,i) => {
+      const h = (v/barMax)*100;
+      return `
+        <div class="bar-col">
+          <div class="bar" style="height:${Math.max(h,5)}%;background:linear-gradient(180deg,#FF3D57,#FFA940)">
+            <div class="bar-val">${v}</div>
+          </div>
+          <div class="bar-label">${labels[i]}</div>
         </div>
-        <div class="bar-label">${labels[i]}</div>
-      </div>
-    `;
-  }).join('');
+      `;
+    }).join('');
+  }
 }
 
 function renderTrenTop(){
+  // Reuse top products from dashTopProd
   const list = document.getElementById('trenTopList');
-  list.innerHTML = TREND_TOP.map((p,i)=>`
-    <div class="tren-item">
-      <div class="tren-rank ${i===0?'top1':''}">${i+1}</div>
-      <img class="tren-thumb" src="${p.img}">
-      <div class="tren-info">
-        <div class="nm">${p.name}</div>
-        <div class="mt">
-          <span class="pr">Rp ${p.price.toLocaleString('id-ID')}</span>
-          <span>· ${p.sold} terjual</span>
-        </div>
-      </div>
-      <div class="tren-trend ${p.trend}">
-        ${p.trend==='up'?'▲':'▼'} ${p.pct}
-        ${p.hot?'<div style="font-size:9px;margin-top:2px;background:#FF3D57;color:#fff;padding:1px 5px;border-radius:3px">HOT</div>':''}
-      </div>
-    </div>
-  `).join('');
+  const src = document.getElementById('dashTopProd');
+  if (list && src) list.innerHTML = src.innerHTML;
 }
 
 function renderTags(){
-  const list = document.getElementById('tagsList');
-  list.innerHTML = RELATED_KEYWORDS.map(k=>`
-    <div class="tag" onclick="document.getElementById('trenInput').value='${k.tag}';analyzeKeyword()">
-      ${k.tag}
-      <span class="v">${k.v}</span>
-    </div>
-  `).join('');
-}
-
-function analyzeKeyword(){
-  const kw = document.getElementById('trenInput').value || 'tumbler termal';
-  document.getElementById('trenKeyword').textContent = kw;
-  renderBarChart();
-  showToast(`Menganalisis kata kunci: "${kw}"`,'info','Analisis Tren');
+  // No-op — fitur ini gak relevan, data real from bridge
 }
 
 /* =================== ORDER =================== */
@@ -596,7 +584,7 @@ function handleBridgeData(payload) {
 
   // Update status di topbar
   const syncEl = document.getElementById('syncTime');
-  syncEl.textContent = `Bridge: ${new Date(payload.timestamp).toLocaleTimeString('id-ID')}`;
+  syncEl.textContent = `Live: ${new Date(payload.timestamp).toLocaleTimeString('id-ID')}`;
 
   // Handle berdasarkan endpoint
   if (endpoint.includes('goods/list') || endpoint.includes('goods/statistics')) {
@@ -615,5 +603,24 @@ function handleBridgeData(payload) {
     if (data.data?.records) renderRealOrders(data.data.records);
   }
 
-  showToast(`Data Akulaku: ${endpoint.split('/').pop()}`, 'success', 'Bridge');
+  // Chat unread
+  if (endpoint.includes('vendorTotalUnreadNumByAccount')) {
+    const count = data.data || '0';
+    const badge = document.getElementById('chatBadge');
+    if (parseInt(count) > 0) {
+      badge.textContent = count;
+      badge.style.display = 'inline-block';
+    } else {
+      badge.style.display = 'none';
+    }
+    document.getElementById('statChat').textContent = count.toString();
+  }
+
+  // Settlement
+  if (endpoint.includes('settlementType') || endpoint.includes('refundOrder')) {
+    document.querySelector('#view-order .sum-card.pending .val').textContent = 'Rp —';
+    document.querySelector('#view-order .sum-card.pending .meta').textContent = 'Data settlement real-time';
+  }
+
+  showToast(`📡 ${endpoint.split('/').pop()}`, 'success', 'Bridge');
 }
