@@ -541,7 +541,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   renderTrenTop();
   renderTags();
   renderOrders();
-  // Load BigSeller data async
+  // Load Akulaku data async
   loadDashboard();
 
   // Demo hint: klik di luar panel detail menutupnya
@@ -558,47 +558,3 @@ window.addEventListener('DOMContentLoaded',()=>{
     if(e.key==='Escape') closeDetail();
   });
 });
-
-/* =================== BIGSELLER SETTINGS =================== */
-let bsCookie = '';
-function saveBSCookie(){
-  const el = document.getElementById('bsCookie');
-  const status = document.getElementById('bsStatus');
-  const cookie = el.value.trim();
-  if(!cookie) return status.innerHTML = '<span style="color:var(--danger)">⚠️ Cookie kosong</span>';
-  status.innerHTML = '<span style="color:var(--text-muted)">⏳ Menyimpan...</span>';
-  fetch('/api/bigseller/save-cookie', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({shopId:'default', cookie})
-  })
-  .then(r=>r.json())
-  .then(d=>{
-    if(d.success){
-      bsCookie = cookie;
-      status.innerHTML = '<span style="color:var(--success)">✅ Cookie tersimpan! Coba ambil data di bawah.</span>';
-    } else {
-      status.innerHTML = '<span style="color:var(--danger)">❌ Gagal: '+(d.error||'unknown')+'</span>';
-    }
-  })
-  .catch(e=>{
-    status.innerHTML = '<span style="color:var(--danger)">❌ Error: '+e.message+'</span>';
-  });
-}
-function fetchBS(path){
-  const pre = document.getElementById('bsResult');
-  const status = document.getElementById('bsStatus');
-  pre.textContent = '⏳ Loading...';
-  // Try using saved cookie from DB first, fallback to query param
-  let url = '/api/bigseller/proxy?path='+encodeURIComponent(path);
-  if(bsCookie) url += '&token='+encodeURIComponent(bsCookie);
-  fetch(url)
-  .then(r=>r.text())
-  .then(t=>{
-    try{ pre.textContent = JSON.stringify(JSON.parse(t), null, 2); }
-    catch(e){ pre.textContent = t; }
-  })
-  .catch(e=>{
-    pre.textContent = 'Error: '+e.message;
-  });
-}
