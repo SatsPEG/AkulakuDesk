@@ -490,26 +490,26 @@
       <!-- VIEW: PENGATURAN -->
       <section class="view" id="view-pengaturan">
         <div class="tren-input-card" style="margin-bottom:16px">
-          <div style="margin-bottom:10px;font-size:15px;font-weight:700">🔗 Hubungkan BigSeller</div>
+          <div style="margin-bottom:10px;font-size:15px;font-weight:700">🔗 Hubungkan Akulaku Seller Centre</div>
           <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;line-height:1.5">
-            Dashboard ini mengambil data Akulaku melalui BigSeller.<br>
-            <strong>Cara:</strong> Login BigSeller → F12 → Network → klik request → copy Cookie header → paste di bawah.
+            Dashboard ini mengambil data langsung dari Akulaku Seller Centre.<br>
+            <strong>Cara:</strong> Login Seller Centre → F12 → Application → Cookies → copy <code>b-token</code> & <code>JSESSIONID</code> → paste di bawah.
           </p>
           <div class="tren-input-row">
-            <input type="text" id="bsCookie" placeholder="Paste Cookie dari BigSeller..." style="font-size:12px;font-family:monospace">
-            <button onclick="saveBSCookie()">💾 Simpan Cookie</button>
+            <input type="text" id="akCookie" placeholder="b-token=xxx; JSESSIONID=xxx; ..." style="font-size:12px;font-family:monospace">
+            <button onclick="saveAkulakuCookie()">💾 Simpan Cookie</button>
           </div>
-          <div id="bsStatus" style="margin-top:10px;font-size:12px"></div>
+          <div id="akStatus" style="margin-top:10px;font-size:12px"></div>
         </div>
 
         <div class="tren-input-card">
-          <div style="font-size:14px;font-weight:700;margin-bottom:10px">📋 Coba Ambil Data</div>
+          <div style="font-size:14px;font-weight:700;margin-bottom:10px">📋 Coba Ambil Data Langsung</div>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn-ghost" onclick="fetchBS('/api/v1/shop/authShop/list.json?platform=akulaku')">Daftar Shop</button>
-            <button class="btn-ghost" onclick="fetchBS('/api/v1/product/listing/akulaku/active.json?orderBy=create_time&desc=true&searchType=productName&inquireType=0&akulakuStatus=1&bsStatus=4&pageNo=1&pageSize=50')">Produk Aktif</button>
-            <button class="btn-ghost" onclick="fetchBS('/api/v1/product/listing/akulaku/count.json?orderBy=create_time&desc=true&searchType=productName&inquireType=0&akulakuStatus=1&bsStatus=4&pageNo=1&pageSize=50')">Count</button>
+            <button class="btn-ghost" onclick="testAkulaku('/bapi/vendor-goods-biz/goods/list', JSON.stringify({current:1,pageSize:5,filterStatus:'0',saleDesc:'-1'}))">Daftar Produk</button>
+            <button class="btn-ghost" onclick="testAkulaku('/bapi/vendor/desk/statistics', JSON.stringify({shopId:'3473862849057816580'}))">Dashboard Stats</button>
+            <button class="btn-ghost" onclick="testAkulaku('/bapi/vendor-goods-biz/goods/shop/quota/query')">Quota Produk</button>
           </div>
-          <pre id="bsResult" style="margin-top:12px;background:#F9FAFB;border:1px solid var(--border);border-radius:9px;padding:14px;font-size:11px;font-family:monospace;max-height:400px;overflow:auto;white-space:pre-wrap"></pre>
+          <pre id="akResult" style="margin-top:12px;background:#F9FAFB;border:1px solid var(--border);border-radius:9px;padding:14px;font-size:11px;font-family:monospace;max-height:400px;overflow:auto;white-space:pre-wrap"></pre>
         </div>
       </section>
 

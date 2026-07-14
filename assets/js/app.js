@@ -48,46 +48,83 @@ function showToast(text, type='default', title=null){
 }
 
 /* =================== DASHBOARD =================== */
+let AKULAKU_COOKIE = ''; // akan diisi dari halaman pengaturan
+
 async function loadDashboard(){
   try {
-    // Fetch product listing from BigSeller (via env cookie)
-    const [prodResp, countResp, shopResp] = await Promise.all([
-      fetch('/api/bigseller/proxy'),
-      fetch('/api/bigseller/proxy?path=/api/v1/product/listing/akulaku/count.json?orderBy=create_time&desc=true&searchType=productName&inquireType=0&akulakuStatus=1&bsStatus=4&pageNo=1&pageSize=50'),
-      fetch('/api/bigseller/proxy?path=/api/v1/shop/authShop/list.json?platform=akulaku'),
-    ]);
-    const prod = await prodResp.json();
-    const cnt = await countResp.json();
-    const shop = await shopResp.json();
+    // Skip if no cookie set yet
+    const statsResp = await fetchAkulaku('/bapi/vendor/desk/statistics', {shopId:'3473862849057816580'});
+    if (statsResp && statsResp.success) {
+      const todo = statsResp.data?.toDoList || {};
+      document.getElementById('statChat').textContent = todo.refundingCount || '0';
+      document.getElementById('statSales').textContent = todo.waitDeliverCount !== undefined ? `Deliver: ${todo.waitDeliverCount}` : '—';
+    }
 
-    // Stat cards
-    const counts = cnt?.data || {};
-    document.getElementById('statChat').textContent = '—';
-    document.getElementById('statProduk').textContent = (counts.onsale || '—').toString();
-    document.getElementById('statSales').textContent = (counts.allOnlineNum || '—').toString();
-    document.getElementById('statSettlement').textContent = counts.soldout !== undefined ? `Habis: ${counts.soldout}` : '—';
+    const prodResp = await fetchAkulaku('/bapi/vendor-goods-biz/goods/shop/quota/query');
+    if (prodResp && prodResp.success) {
+      document.getElementById('statProduk').textContent = prodResp.data?.currGoodsQuota || '—';
+    }
 
-    // Top products (ambil dari listing, sort by price desc as proxy for "terlaris")
-    const items = prod?.data?.page?.rows || [];
-    const top = items.slice(0, 5);
-    const list = document.getElementById('dashTopProd');
-    list.innerHTML = top.map((p,i) => `
-      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-soft)">
-        <div style="width:22px;text-align:center;font-weight:800;color:${i===0?'#FF3D57':'var(--text-muted)'};font-size:13px">${i+1}</div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name || '—'}</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Rp ${(p.price||0).toLocaleString('id-ID')} · ${p.stock||0} stok</div>
+    const listResp = await fetchAkulaku('/bapi/vendor-goods-biz/goods/list', {current:1, pageSize:10, filterStatus:'0', saleDesc:'-1'});
+    if (listResp && listResp.success && listResp.data?.records) {
+      const items = listResp.data.records;
+      const top = items.slice(0, 5);
+      const list = document.getElementById('dashTopProd');
+      list.innerHTML = top.map((p,i) => `
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-soft)">
+          <div style="width:22px;text-align:center;font-weight:800;color:${i===0?'#FF3D57':'var(--text-muted)'};font-size:13px">${i+1}</div>
+          <img src="${p.indexImage || ''}" style="width:40px;height:40px;border-radius:6px;object-fit:cover;background:#f0f0f0" onerror="this.style.display='none'">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.spuName || '—'}</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Rp ${(p.minPrice||0).toLocaleString('id-ID')} · ${p.qty||0} terjual</div>
+          </div>
         </div>
-        <div style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;color:var(--success)">${p.sold||0}</div>
-      </div>
-    `).join('') || '<div style="padding:20px;text-align:center;color:var(--text-muted)">Belum ada produk</div>';
+      `).join('') || '<div style="padding:20px;text-align:center;color:var(--text-muted)">Belum ada produk</div>';
 
-    // Sales chart with real product prices
-    renderSalesChart(items.slice(0,14));
+      renderSalesChart(items.slice(0,14));
+    }
 
   } catch(e){
     console.error('Dashboard load error', e);
-    // fallback: keep mock values visible
+  }
+}
+
+async function fetchAkulaku(endpoint, body = null) {
+  try {
+    let url = '/api/akulaku/proxy?endpoint=' + encodeURIComponent(endpoint);
+    if (AKULAKU_COOKIE) url += '&token=' + encodeURIComponent(AKULAKU_COOKIE);
+    const opts = { method: 'POST', headers: {'Content-Type':'application/json'} };
+    if (body) opts.body = JSON.stringify(body);
+    const resp = await fetch(url, opts);
+    const text = await resp.text();
+    try { return JSON.parse(text); } catch(e) { return null; }
+  } catch(e) {
+    console.error('fetchAkulaku error', endpoint, e);
+    return null;
+  }
+}
+
+function saveAkulakuCookie(){
+  const el = document.getElementById('akCookie');
+  const status = document.getElementById('akStatus');
+  const cookie = el.value.trim();
+  if(!cookie) return status.innerHTML = '<span style="color:var(--danger)">⚠️ Cookie kosong</span>';
+  AKULAKU_COOKIE = cookie;
+  status.innerHTML = '<span style="color:var(--success)">✅ Cookie tersimpan di session. Coba ambil data!</span>';
+  loadDashboard();
+}
+
+function testAkulaku(endpoint, bodyStr = '{}'){
+  const pre = document.getElementById('akResult');
+  const status = document.getElementById('akStatus');
+  pre.textContent = '⏳ Loading...';
+  try {
+    const body = JSON.parse(bodyStr);
+    fetchAkulaku(endpoint, body).then(d => {
+      pre.textContent = JSON.stringify(d, null, 2);
+    });
+  } catch(e) {
+    pre.textContent = 'Error: ' + e.message;
   }
 }
 
