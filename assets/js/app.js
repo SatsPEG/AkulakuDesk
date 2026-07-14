@@ -539,6 +539,9 @@ window.addEventListener('DOMContentLoaded',()=>{
   // Load Akulaku data async
   loadDashboard();
 
+  // Start Bridge listener (Chrome Extension)
+  startBridgeListener();
+
   // Demo hint: klik di luar panel detail menutupnya
   document.getElementById('prodDetail').addEventListener('click',(e)=>{
     if(e.target.id==='prodDetail') closeDetail();
@@ -553,3 +556,56 @@ window.addEventListener('DOMContentLoaded',()=>{
     if(e.key==='Escape') closeDetail();
   });
 });
+
+/* =================== CHROME BRIDGE =================== */
+function startBridgeListener() {
+  // postMessage dari content_script_vercel.js
+  window.addEventListener('message', (e) => {
+    if (e.source !== window) return;
+    if (e.data?.source !== 'akulaku-bridge' || e.data?.type !== 'BRIDGE_DATA') return;
+    handleBridgeData(e.data.payload);
+  });
+
+  // CustomEvent dari content_script_vercel.js
+  window.addEventListener('akulaku-bridge-data', (e) => {
+    handleBridgeData(e.detail);
+  });
+
+  // Global callback
+  window.__onAkulakuBridgeData = (payload) => {
+    handleBridgeData(payload);
+  };
+
+  console.log('[Dashboard] Bridge listener aktif');
+}
+
+function handleBridgeData(payload) {
+  if (!payload || !payload.data) return;
+  const data = payload.data;
+  const endpoint = payload.endpoint || '';
+
+  if (!data.success) return;
+
+  // Update status di topbar
+  const syncEl = document.getElementById('syncTime');
+  syncEl.textContent = `Bridge: ${new Date(payload.timestamp).toLocaleTimeString('id-ID')}`;
+
+  // Handle berdasarkan endpoint
+  if (endpoint.includes('goods/list') || endpoint.includes('goods/statistics')) {
+    document.getElementById('statProduk').textContent = data.data?.currGoodsQuota || data.data?.enable || '—';
+    if (data.data?.records) renderTopProducts(data.data.records.slice(0, 5));
+  }
+
+  if (endpoint.includes('desk/statistics')) {
+    const todo = data.data?.toDoList || {};
+    document.getElementById('statChat').textContent = todo.refundingCount || '0';
+    document.getElementById('statSales').textContent = todo.waitDeliverCount !== undefined ? `Deliver: ${todo.waitDeliverCount}` : '—';
+    document.getElementById('statSettlement').textContent = todo.waitPayCount !== undefined ? `Pending: ${todo.waitPayCount}` : '—';
+  }
+
+  if (endpoint.includes('queryOrders')) {
+    if (data.data?.records) renderRealOrders(data.data.records);
+  }
+
+  showToast(`Data Akulaku: ${endpoint.split('/').pop()}`, 'success', 'Bridge');
+}

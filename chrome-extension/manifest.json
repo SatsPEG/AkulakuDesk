@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "AkulakuDesk Bridge",
+  "version": "1.0.0",
+  "description": "Jembatan data real-time dari Akulaku Seller Center ke dashboard AkulakuDesk",
+  "author": "DBS Original",
+
+  "permissions": [
+    "storage",
+    "scripting",
+    "tabs"
+  ],
+
+  "host_permissions": [
+    "https://ec-vendor.akulaku.com/*",
+    "https://akulaku-desk-six.vercel.app/*"
+  ],
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "AkulakuDesk Bridge"
+  },
+
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://ec-vendor.akulaku.com/*"],
+      "js": ["content_script_akulaku.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://akulaku-desk-six.vercel.app/*"],
+      "js": ["content_script_vercel.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
