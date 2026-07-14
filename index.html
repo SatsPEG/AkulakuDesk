@@ -136,9 +136,9 @@
         <h1 id="pageTitle">Dashboard</h1>
         <div class="crumb" id="pageCrumb">Ringkasan aktivitas toko kamu hari ini</div>
       </div>
-      <div class="session-status">
-        <div class="pulse"></div>
-        <span>Session: ONLINE</span>
+      <div class="bridge-indicator">
+        <div class="pulse" id="bridgeDot"></div>
+        <span id="bridgeLabel">Bridge: Menunggu data...</span>
       </div>
       <div class="sync-time">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -333,7 +333,7 @@
             <div class="thread-messages" id="threadMessages"></div>
 
             <div class="thread-input">
-              <div class="mock-tag">
+              <div class="bridge-silent">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
                 Mode Pantau
               </div>

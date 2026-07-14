@@ -363,6 +363,20 @@ function handleBridgeData(payload) {
     </div>
   `;
 
+  // Update topbar indicator
+  const bridgeDot = document.getElementById('bridgeDot');
+  const bridgeLabel = document.getElementById('bridgeLabel');
+  if (bridgeDot) {
+    bridgeDot.style.background = '#10B981';
+    bridgeDot.style.setProperty('--dot-color', '#10B981');
+  }
+  if (bridgeLabel) {
+    bridgeLabel.textContent = `Bridge: LIVE @ ${new Date(payload.timestamp).toLocaleTimeString('id-ID')}`;
+    bridgeLabel.style.color = '#047857';
+    bridgeLabel.closest('.bridge-indicator').style.background = '#ECFDF5';
+    bridgeLabel.closest('.bridge-indicator').style.borderColor = '#A7F3D0';
+  }
+
   const syncEl = document.getElementById('syncTime');
   syncEl.textContent = `Live @ ${new Date(payload.timestamp).toLocaleTimeString('id-ID')}`;
 
