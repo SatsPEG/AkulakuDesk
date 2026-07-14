@@ -58,6 +58,7 @@ async function loadDashboard(){
       const todo = statsResp.data?.toDoList || {};
       document.getElementById('statChat').textContent = todo.refundingCount || '0';
       document.getElementById('statSales').textContent = todo.waitDeliverCount !== undefined ? `Deliver: ${todo.waitDeliverCount}` : '—';
+      document.getElementById('statSettlement').textContent = todo.waitPayCount !== undefined ? `Pending: ${todo.waitPayCount}` : '—';
     }
 
     const prodResp = await fetchAkulaku('/bapi/vendor-goods-biz/goods/shop/quota/query');
@@ -65,28 +66,76 @@ async function loadDashboard(){
       document.getElementById('statProduk').textContent = prodResp.data?.currGoodsQuota || '—';
     }
 
+    // Real product list
     const listResp = await fetchAkulaku('/bapi/vendor-goods-biz/goods/list', {current:1, pageSize:10, filterStatus:'0', saleDesc:'-1'});
     if (listResp && listResp.success && listResp.data?.records) {
       const items = listResp.data.records;
-      const top = items.slice(0, 5);
-      const list = document.getElementById('dashTopProd');
-      list.innerHTML = top.map((p,i) => `
-        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-soft)">
-          <div style="width:22px;text-align:center;font-weight:800;color:${i===0?'#FF3D57':'var(--text-muted)'};font-size:13px">${i+1}</div>
-          <img src="${p.indexImage || ''}" style="width:40px;height:40px;border-radius:6px;object-fit:cover;background:#f0f0f0" onerror="this.style.display='none'">
-          <div style="flex:1;min-width:0">
-            <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.spuName || '—'}</div>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Rp ${(p.minPrice||0).toLocaleString('id-ID')} · ${p.qty||0} terjual</div>
-          </div>
-        </div>
-      `).join('') || '<div style="padding:20px;text-align:center;color:var(--text-muted)">Belum ada produk</div>';
-
+      renderTopProducts(items.slice(0, 5));
       renderSalesChart(items.slice(0,14));
+    }
+
+    // Real order list
+    const orderResp = await fetchAkulaku('/bapi/vendor-orders-biz/order/queryOrders', {pageNo:1, pageSize:5});
+    if (orderResp && orderResp.success && orderResp.data?.records) {
+      renderRealOrders(orderResp.data.records);
     }
 
   } catch(e){
     console.error('Dashboard load error', e);
   }
+}
+
+function renderTopProducts(items){
+  const list = document.getElementById('dashTopProd');
+  list.innerHTML = items.map((p,i) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-soft)">
+      <div style="width:22px;text-align:center;font-weight:800;color:${i===0?'#FF3D57':'var(--text-muted)'};font-size:13px">${i+1}</div>
+      <img src="${p.indexImage || ''}" style="width:40px;height:40px;border-radius:6px;object-fit:cover;background:#f0f0f0" onerror="this.style.display='none'">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.spuName || '—'}</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px">Rp ${(p.minPrice||0).toLocaleString('id-ID')} · ${p.qty||0} terjual</div>
+      </div>
+    </div>
+  `).join('') || '<div style="padding:20px;text-align:center;color:var(--text-muted)">Belum ada produk</div>';
+}
+
+function renderRealOrders(orders){
+  // Update dashboard order summary
+  let totalPending = 0, totalCair = 0, pendingCount = 0;
+  orders.forEach(o => {
+    const amount = o.orderItems?.[0]?.orderItemAmount || 0;
+    if (o.orderStatus === 'cancel' || o.orderStatus === 'complete') {
+      totalCair += amount;
+    } else {
+      totalPending += amount;
+      pendingCount++;
+    }
+  });
+  document.querySelector('#view-order .sum-card.pending .val').textContent = `Rp ${totalPending.toLocaleString('id-ID')}`;
+  document.querySelector('#view-order .sum-card.pending .meta').textContent = `${pendingCount} order · realtime`; 
+  document.querySelector('#view-order .sum-card.cair .val').textContent = `Rp ${totalCair.toLocaleString('id-ID')}`;
+
+  // Render order table
+  const tbody = document.getElementById('orderTbody');
+  tbody.innerHTML = orders.map(o => {
+    const item = o.orderItems?.[0] || {};
+    const statusMap = {0:'Diproses',1:'Dikirim',2:'Selesai',3:'Cancel'};
+    const status = statusMap[item.deliveryStatus] || 'Diproses';
+    const amount = item.orderItemAmount || 0;
+    const buyerName = o.orderAddressInfo?.buyerName || o.userName || 'Pembeli';
+    const date = o.createTime ? new Date(o.createTime * 1000).toLocaleDateString('id-ID') : '—';
+    return `
+      <tr>
+        <td><span style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;color:var(--primary)">${o.orderCode?.slice(-8) || o.orderId}</span></td>
+        <td>${item.skuName || 'Produk'}</td>
+        <td>${buyerName}</td>
+        <td><span class="status-badge ${status==='Selesai'?'active':''}">${status}</span></td>
+        <td><span class="variant-pill">BNPL</span></td>
+        <td><span class="settle-badge">Rp ${amount.toLocaleString('id-ID')}</span></td>
+        <td style="font-size:12px;color:var(--text-muted)">${date}</td>
+      </tr>
+    `;
+  }).join('');
 }
 
 async function fetchAkulaku(endpoint, body = null) {
@@ -110,7 +159,7 @@ function saveAkulakuCookie(){
   const cookie = el.value.trim();
   if(!cookie) return status.innerHTML = '<span style="color:var(--danger)">⚠️ Cookie kosong</span>';
   AKULAKU_COOKIE = cookie;
-  status.innerHTML = '<span style="color:var(--success)">✅ Cookie tersimpan di session. Coba ambil data!</span>';
+  status.innerHTML = '<span style="color:var(--success)">✅ Cookie tersimpan. Data real!</span>';
   loadDashboard();
 }
 
@@ -294,111 +343,61 @@ function receiveMessage(msg){
 }
 
 /* =================== PRODUK =================== */
-function renderProductTable(){
+async function renderProductTable(){
   const q = document.getElementById('prodSearch').value.toLowerCase();
   const status = document.getElementById('prodStatusFilter').value;
   const sort = document.getElementById('prodSort').value;
-  let list = PRODUCTS.filter(p=>{
-    if(q && !p.name.toLowerCase().includes(q)) return false;
-    if(status!=='all' && p.status!==status) return false;
+
+  let products = [];
+  const resp = await fetchAkulaku('/bapi/vendor-goods-biz/goods/list', {current:1, pageSize:50, filterStatus:'0', saleDesc:'-1'});
+  if (resp && resp.success && resp.data?.records) {
+    products = resp.data.records;
+  } else {
+    // fallback to mock
+    products = PRODUCTS;
+  }
+
+  let list = products.filter(p=>{
+    if(q && !(p.spuName||p.name||'').toLowerCase().includes(q)) return false;
     return true;
   });
   list.sort((a,b)=>{
-    if(sort==='sold') return b.sold-a.sold;
-    if(sort==='views') return b.views.reduce((x,y)=>x+y,0)-a.views.reduce((x,y)=>x+y,0);
-    if(sort==='price') return b.price-a.price;
-    if(sort==='stock') return b.stock-a.stock;
+    if(sort==='sold') return (b.sold||0)-(a.sold||0);
+    if(sort==='price') return (b.maxPrice||b.price||0)-(a.maxPrice||a.price||0);
+    if(sort==='stock') return (b.qty||b.stock||0)-(a.qty||a.stock||0);
+    return 0;
   });
   const tbody = document.getElementById('prodTbody');
   tbody.innerHTML = list.map((p,i)=>{
-    const totalViews = p.views.reduce((a,b)=>a+b,0);
-    const maxV = Math.max(...p.views);
-    const sparkPts = p.views.map((v,i)=>`${(i*60/(p.views.length-1))},${20-(v/maxV)*18}`).join(' ');
-    const margin = p.price - p.cost - (p.price*p.fee/100);
+    const name = p.spuName || p.name || '—';
+    const price = p.minPrice || p.price || 0;
+    const stock = p.qty || p.stock || 0;
+    const img = p.indexImage || PRODUCT_IMG[i % PRODUCT_IMG.length];
+    const sold = p.sold || 0;
+    const statusLabel = p.disabled === 0 ? 'Aktif' : 'Nonaktif';
     return `
-      <tr onclick="openDetail(${p.id})">
+      <tr>
         <td style="color:var(--text-muted);font-weight:600">${i+1}</td>
         <td>
           <div class="prod-cell">
-            <img class="prod-thumb" src="${PRODUCT_IMG[p.id-1]}">
-            <div class="prod-name">${p.name}<small>Margin: Rp ${margin.toLocaleString('id-ID')}</small></div>
+            <img class="prod-thumb" src="${img}" onerror="this.src='${PRODUCT_IMG[i % PRODUCT_IMG.length]}'">
+            <div class="prod-name">${name}</div>
           </div>
         </td>
-        <td><span class="variant-pill">${p.variant}</span></td>
-        <td><span class="price">Rp ${p.price.toLocaleString('id-ID')}</span></td>
-        <td><span class="stock ${p.stock===0?'out':p.stock<20?'low':''}">${p.stock===0?'Habis':p.stock}</span></td>
-        <td><span class="status-badge ${p.status==='active'?'active':'inactive'}">${p.status==='active'?'Aktif':'Nonaktif'}</span></td>
-        <td>
-          <div style="display:flex;align-items:center;gap:8px">
-            <svg width="60" height="22" viewBox="0 0 60 22"><polyline points="${sparkPts}" fill="none" stroke="${p.status==='active'?'#FF3D57':'#8B92A5'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span style="font-size:11px;color:var(--text-muted);font-weight:600">${totalViews}</span>
-          </div>
-        </td>
-        <td style="font-weight:700">${p.sold}</td>
+        <td><span class="variant-pill">—</span></td>
+        <td><span class="price">Rp ${price.toLocaleString('id-ID')}</span></td>
+        <td><span class="stock ${stock===0?'out':stock<20?'low':''}">${stock===0?'Habis':stock}</span></td>
+        <td><span class="status-badge ${statusLabel==='Aktif'?'active':'inactive'}">${statusLabel}</span></td>
+        <td><span style="font-size:11px;color:var(--text-muted);font-weight:600">${sold}</span></td>
+        <td style="font-weight:700">${sold}</td>
         <td>
           <div class="row-actions" onclick="event.stopPropagation()">
             <button class="row-btn" title="Lihat"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-            <button class="row-btn" title="Edit"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
           </div>
         </td>
       </tr>
     `;
   }).join('') || `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted)">Tidak ada produk yang cocok</td></tr>`;
-}
-
-function openDetail(id){
-  const p = PRODUCTS.find(x=>x.id===id);
-  if(!p) return;
-  const fee = Math.round(p.price*p.fee/100);
-  const margin = p.price - p.cost - fee;
-  const marginPct = ((margin/p.price)*100).toFixed(1);
-  const totalViews = p.views.reduce((a,b)=>a+b,0);
-  document.getElementById('detailBody').innerHTML = `
-    <div class="detail-hero">
-      <img src="${PRODUCT_IMG[p.id-1]}">
-      <div class="detail-hero-info">
-        <h2>${p.name}</h2>
-        <div class="price-big">Rp ${p.price.toLocaleString('id-ID')}</div>
-        <div style="display:flex;gap:8px;margin-bottom:14px">
-          <span class="status-badge ${p.status==='active'?'active':'inactive'}">${p.status==='active'?'Aktif':'Nonaktif'}</span>
-          <span class="variant-pill">${p.variant}</span>
-        </div>
-        <div class="detail-stats">
-          <div class="detail-stat"><div class="l">Stok</div><div class="v">${p.stock}</div></div>
-          <div class="detail-stat"><div class="l">Terjual</div><div class="v">${p.sold}</div></div>
-          <div class="detail-stat"><div class="l">Views 7H</div><div class="v">${totalViews}</div></div>
-        </div>
-      </div>
-    </div>
-    <div class="detail-grid">
-      <div class="detail-card">
-        <div class="ttl">Harga Modal</div>
-        <div class="v">Rp ${p.cost.toLocaleString('id-ID')}</div>
-      </div>
-      <div class="detail-card">
-        <div class="ttl">Fee Akulaku (${p.fee}%)</div>
-        <div class="v red">Rp ${fee.toLocaleString('id-ID')}</div>
-      </div>
-      <div class="detail-card">
-        <div class="ttl">Margin / Unit</div>
-        <div class="v green">Rp ${margin.toLocaleString('id-ID')} (${marginPct}%)</div>
-      </div>
-      <div class="detail-card">
-        <div class="ttl">Estimasi Profit (sold)</div>
-        <div class="v green">Rp ${(margin*p.sold).toLocaleString('id-ID')}</div>
-      </div>
-    </div>
-    <div class="detail-desc">${p.desc}</div>
-    <div style="display:flex;gap:10px;margin-top:18px">
-      <button class="btn-ghost" style="flex:1;justify-content:center;padding:11px" onclick="showToast('Membuka editor di Akulaku Seller Center','info')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit di Akulaku</button>
-      <button class="btn-primary-sm" style="flex:1;justify-content:center;padding:11px" onclick="closeDetail();showToast('Produk disinkronkan','success')">Sinkron Ulang</button>
-    </div>
-  `;
-  document.getElementById('prodDetail').classList.add('show');
-}
-
-function closeDetail(){
-  document.getElementById('prodDetail').classList.remove('show');
 }
 
 function syncProducts(){
@@ -466,32 +465,28 @@ function analyzeKeyword(){
 }
 
 /* =================== ORDER =================== */
-function renderOrders(){
-  const tbody = document.getElementById('orderTbody');
-  const statusColor = {
-    'Diproses':'warning',
-    'Dikirim':'info',
-    'Selesai':'success'
-  };
-  tbody.innerHTML = ORDERS.map(o=>{
-    const prod = PRODUCTS.find(p=>p.name.includes(o.product.split(' ')[0])) || PRODUCTS[0];
-    return `
-      <tr>
-        <td><span style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;color:var(--primary)">${o.id}</span></td>
-        <td>
-          <div class="prod-cell">
-            <img class="prod-thumb" src="${PRODUCT_IMG[prod.id-1]}" style="width:36px;height:36px">
-            <div class="prod-name" style="font-size:12.5px">${o.product}</div>
-          </div>
-        </td>
-        <td>${o.buyer}</td>
-        <td><span class="status-badge ${o.status==='Selesai'?'active':o.status==='Dikirim'?'':'inactive'}" style="${o.status==='Dikirim'?'background:#EFF6FF;color:#1E40AF':''}">${o.status}</span></td>
-        <td><span class="variant-pill">${o.cicilan}</span></td>
-        <td><span class="settle-badge ${o.settle}">${o.settleText}</span></td>
-        <td style="font-size:12px;color:var(--text-muted)">${o.date}</td>
-      </tr>
-    `;
-  }).join('');
+async function renderOrders(){
+  const resp = await fetchAkulaku('/bapi/vendor-orders-biz/order/queryOrders', {pageNo:1, pageSize:10});
+  if (resp && resp.success && resp.data?.records) {
+    renderRealOrders(resp.data.records);
+  } else {
+    // fallback mock
+    const tbody = document.getElementById('orderTbody');
+    tbody.innerHTML = ORDERS.map(o=>{
+      const prod = PRODUCTS.find(p=>p.name.includes(o.product.split(' ')[0])) || PRODUCTS[0];
+      return `
+        <tr>
+          <td><span style="font-family:'JetBrains Mono',monospace;font-weight:700;font-size:12px;color:var(--primary)">${o.id}</span></td>
+          <td><div class="prod-cell"><img class="prod-thumb" src="${PRODUCT_IMG[prod.id-1]}" style="width:36px;height:36px"><div class="prod-name" style="font-size:12.5px">${o.product}</div></div></td>
+          <td>${o.buyer}</td>
+          <td><span class="status-badge ${o.status==='Selesai'?'active':o.status==='Dikirim'?'':'inactive'}" style="${o.status==='Dikirim'?'background:#EFF6FF;color:#1E40AF':''}">${o.status}</span></td>
+          <td><span class="variant-pill">${o.cicilan}</span></td>
+          <td><span class="settle-badge ${o.settle}">${o.settleText}</span></td>
+          <td style="font-size:12px;color:var(--text-muted)">${o.date}</td>
+        </tr>
+      `;
+    }).join('');
+  }
 }
 
 /* =================== SIMULATIONS =================== */
