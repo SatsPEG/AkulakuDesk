@@ -1,8 +1,39 @@
 // content_script_vercel.js — Isolated world
 // Tugas: terima data dari background + relay remote config ke background
+// + kasih tau halaman kalo extension aktif
 
 (function() {
   'use strict';
+
+  function isDashboard() {
+    return window.location.hostname === 'akulaku-desk-six.vercel.app';
+  }
+
+  // ─── 0. SINYAL EXTENSION AKTIF ──────────────────────────────────
+  // Langsung kirim sinyal ke halaman begitu script jalan
+  function announceActive() {
+    window.postMessage({
+      source: 'akulaku-bridge',
+      type: 'EXTENSION_ACTIVE',
+      payload: {
+        version: '1.0.0',
+        url: window.location.href,
+        timestamp: Date.now()
+      }
+    }, 'https://akulaku-desk-six.vercel.app');
+
+    // CustomEvent juga
+    window.dispatchEvent(new CustomEvent('akulaku-bridge-active', {
+      detail: { active: true, timestamp: Date.now() }
+    }));
+  }
+
+  // Announce setelah halaman siap
+  if (document.readyState === 'complete') {
+    announceActive();
+  } else {
+    window.addEventListener('load', announceActive);
+  }
 
   // ─── 1. LISTENER DARI BACKGROUND ─────────────────────────────────
 
@@ -44,7 +75,7 @@
     }).catch(() => {});
   });
 
-  // ─── 3. SINYAL SIAP ─────────────────────────────────────────────
+  // ─── 3. SINYAL SIAP KE BACKGROUND ─────────────────────────────
 
   chrome.runtime.sendMessage({
     type: 'BRIDGE_READY',

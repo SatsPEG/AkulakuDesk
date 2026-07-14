@@ -321,12 +321,27 @@ window.addEventListener('DOMContentLoaded',()=>{
 function startBridgeListener() {
   window.addEventListener('message', (e) => {
     if (e.source !== window) return;
-    if (e.data?.source !== 'akulaku-bridge' || e.data?.type !== 'BRIDGE_DATA') return;
-    handleBridgeData(e.data.payload);
+    if (e.data?.source !== 'akulaku-bridge') return;
+
+    // Extension aktif — langsung update status
+    if (e.data.type === 'EXTENSION_ACTIVE') {
+      extensionDetected();
+      return;
+    }
+
+    // Data dari Akulaku
+    if (e.data.type === 'BRIDGE_DATA') {
+      handleBridgeData(e.data.payload);
+    }
   });
 
   window.addEventListener('akulaku-bridge-data', (e) => {
     handleBridgeData(e.detail);
+  });
+
+  // Extension active event
+  window.addEventListener('akulaku-bridge-active', (e) => {
+    extensionDetected();
   });
 
   window.__onAkulakuBridgeData = (payload) => {
@@ -341,6 +356,34 @@ function startBridgeListener() {
   };
 
   console.log('[Dashboard] Bridge listener aktif');
+}
+
+function extensionDetected() {
+  const container = document.getElementById('bridgeConnStatus');
+  if (!container) return;
+  const isAlready = container.querySelector('.bridge-extension-active');
+  if (isAlready) return; // jangan double
+
+  container.innerHTML = `
+    <div class="bridge-ok bridge-extension-active">
+      <div class="bridge-icon">🔌</div>
+      <div class="bridge-text">
+        <strong>Extension Terdeteksi</strong>
+        <span>Chrome Extension Bridge aktif. Buka Akulaku Seller Centre dan klik menu Produk/Order — data akan muncul otomatis.</span>
+      </div>
+    </div>
+  `;
+
+  // Update topbar indicator
+  const label = document.getElementById('bridgeLabel');
+  const dot = document.getElementById('bridgeDot');
+  if (label) {
+    label.textContent = 'Bridge: Terdeteksi';
+    label.style.color = '#92400E';
+    const parent = label.closest('.bridge-indicator');
+    if (parent) { parent.style.background = '#FEF3C7'; parent.style.borderColor = '#FDE68A'; }
+  }
+  if (dot) dot.style.background = '#F59E0B';
 }
 
 function handleBridgeData(payload) {
