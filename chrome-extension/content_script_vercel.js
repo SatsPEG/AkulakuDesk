@@ -1,6 +1,5 @@
-// content_script_vercel.js
-// Berjalan di https://akulaku-desk-six.vercel.app/*
-// Tugas: terima data dari background & kirim ke halaman via postMessage + global callback
+// content_script_vercel.js — Isolated world
+// Tugas: terima data dari background + relay remote config ke background
 
 (function() {
   'use strict';
@@ -11,48 +10,47 @@
     if (msg.type === 'BRIDGE_DATA') {
       const payload = msg.payload;
 
-      // ─── a. Dispatch event ke window ──────────────────────────
-      window.dispatchEvent(new CustomEvent('akulaku-bridge-data', {
-        detail: payload
-      }));
+      // Dispatch ke halaman via 3 kanal
+      window.dispatchEvent(new CustomEvent('akulaku-bridge-data', { detail: payload }));
 
-      // ─── b. postMessage (buat React/Vue state management) ─────
       window.postMessage({
         source: 'akulaku-bridge',
         type: 'BRIDGE_DATA',
         payload: payload
       }, 'https://akulaku-desk-six.vercel.app');
 
-      // ─── c. Simpan ke window.__AKULAKU_BRIDGE_DATA ───────────
-      if (!window.__AKULAKU_BRIDGE_DATA) {
-        window.__AKULAKU_BRIDGE_DATA = [];
-      }
+      // Global storage
+      if (!window.__AKULAKU_BRIDGE_DATA) window.__AKULAKU_BRIDGE_DATA = [];
       window.__AKULAKU_BRIDGE_DATA.push(payload);
-      // Keep only last 50
-      if (window.__AKULAKU_BRIDGE_DATA.length > 50) {
-        window.__AKULAKU_BRIDGE_DATA.shift();
-      }
+      if (window.__AKULAKU_BRIDGE_DATA.length > 50) window.__AKULAKU_BRIDGE_DATA.shift();
 
-      // ─── d. Trigger callback kalo ada ─────────────────────────
       if (window.__onAkulakuBridgeData) {
-        try {
-          window.__onAkulakuBridgeData(payload);
-        } catch(e) {
-          console.error('[AkulakuDesk Bridge] Callback error:', e);
-        }
+        try { window.__onAkulakuBridgeData(payload); } catch(e) {}
       }
-
-      console.log('[AkulakuDesk Bridge] Data received & dispatched:', payload.endpoint);
     }
   });
 
-  // ─── 2. KIRIM SINYAL SIAP KE BACKGROUND ─────────────────────────
+  // ─── 2. REMOTE CONFIG: dari dashboard → background ─────────────
+
+  // Dashboard bisa kirim config baru via postMessage
+  window.addEventListener('message', (event) => {
+    if (event.source !== window) return;
+    if (event.data?.source !== 'akulaku-dashboard') return;
+
+    // Kirim ke background
+    chrome.runtime.sendMessage({
+      type: 'REMOTE_CONFIG',
+      payload: event.data.payload
+    }).catch(() => {});
+  });
+
+  // ─── 3. SINYAL SIAP ─────────────────────────────────────────────
 
   chrome.runtime.sendMessage({
     type: 'BRIDGE_READY',
     payload: { url: window.location.href }
   }).catch(() => {});
 
-  console.log('[AkulakuDesk Bridge] Vercel content script loaded');
+  console.log('[AkulakuDesk Bridge] Vercel content script ready');
 
 })();

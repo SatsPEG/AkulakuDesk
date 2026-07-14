@@ -576,6 +576,14 @@ function startBridgeListener() {
     handleBridgeData(payload);
   };
 
+  // Remote Config sender (dashboard → extension)
+  window.__bridgeSendConfig = (patterns) => {
+    window.postMessage({
+      source: 'akulaku-dashboard',
+      payload: { targetPatterns: patterns }
+    }, '*');
+  };
+
   console.log('[Dashboard] Bridge listener aktif');
 }
 

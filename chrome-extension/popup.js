@@ -56,6 +56,16 @@
     } else {
       els.lastEndpoint.textContent = '—';
     }
+
+    // Heartbeat
+    if (status.heartbeat !== undefined) {
+      document.getElementById('heartbeatCount').textContent = status.heartbeat.toString();
+    }
+    if (status.missedPongs !== undefined) {
+      const el = document.getElementById('missedPongs');
+      el.textContent = status.missedPongs.toString();
+      el.style.color = status.missedPongs > 2 ? '#FF3D57' : '#9CA3AF';
+    }
   }
 
   function updateDataPreview(data) {
